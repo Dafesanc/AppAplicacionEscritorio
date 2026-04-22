@@ -1,0 +1,151 @@
+<UserControl x:Class="GestionComercial.Presentation.Views.Modules.InventarioView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Grid Margin="24,20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- KPIs de inventario -->
+        <Grid Grid.Row="0" Margin="0,0,0,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="16"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="16"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Border Grid.Column="0" Background="White" CornerRadius="10" Padding="16,14">
+                <StackPanel>
+                    <TextBlock Text="📦" FontSize="22" Margin="0,0,0,4"/>
+                    <TextBlock Text="{Binding Productos.Count}" FontSize="24" FontWeight="Bold" Foreground="#1E3A5F"/>
+                    <TextBlock Text="Productos activos" FontSize="11" Foreground="#6B7280"/>
+                </StackPanel>
+            </Border>
+            <Border Grid.Column="2" Background="White" CornerRadius="10" Padding="16,14">
+                <StackPanel>
+                    <TextBlock Text="⚠" FontSize="22" Foreground="#EF4444" Margin="0,0,0,4"/>
+                    <TextBlock Text="{Binding ProductosConStockBajo}" FontSize="24" FontWeight="Bold" Foreground="#EF4444"/>
+                    <TextBlock Text="Stock bajo mínimo" FontSize="11" Foreground="#6B7280"/>
+                </StackPanel>
+            </Border>
+            <Border Grid.Column="4" Background="White" CornerRadius="10" Padding="16,14">
+                <StackPanel>
+                    <TextBlock Text="💰" FontSize="22" Margin="0,0,0,4"/>
+                    <TextBlock Text="{Binding ValorTotalInventario, StringFormat=\${0:N2}}"
+                               FontSize="20" FontWeight="Bold" Foreground="#10B981"/>
+                    <TextBlock Text="Valor inventario" FontSize="11" Foreground="#6B7280"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Barra búsqueda y filtros -->
+        <Grid Grid.Row="1" Margin="0,0,0,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBox Grid.Column="0"
+                     Text="{Binding Filtro, UpdateSourceTrigger=PropertyChanged}"
+                     Style="{StaticResource InputStyle}"
+                     Tag="🔍 Buscar por nombre, código o tipo..."/>
+            <CheckBox Grid.Column="2" Content="Solo stock bajo"
+                      IsChecked="{Binding SoloStockBajo}"
+                      VerticalAlignment="Center" FontSize="13" Foreground="#374151"/>
+            <TextBlock Grid.Column="4" Text="{Binding MensajeExito}"
+                       Foreground="#10B981" FontSize="12" VerticalAlignment="Center"
+                       Visibility="{Binding MensajeExito, Converter={StaticResource NullToVisibilityConverter}}"/>
+        </Grid>
+
+        <!-- Mensajes error -->
+        <TextBlock Grid.Row="2" Text="{Binding MensajeError}"
+                   Foreground="#EF4444" FontSize="12" Margin="0,0,0,8"
+                   Visibility="{Binding MensajeError, Converter={StaticResource NullToVisibilityConverter}}"/>
+
+        <!-- Layout principal: tabla + detalle/ajuste -->
+        <Grid Grid.Row="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="{Binding MostrarAjuste, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=320}"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- DataGrid de productos -->
+            <Border Grid.Column="0" Background="White" CornerRadius="12" Margin="0,0,12,0">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="8" ShadowDepth="0" Color="#000" Opacity="0.05"/>
+                </Border.Effect>
+                <DataGrid ItemsSource="{Binding Productos}"
+                          SelectedItem="{Binding ProductoSeleccionado}"
+                          Style="{StaticResource ModernDataGridStyle}"
+                          IsReadOnly="True">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Código"      Binding="{Binding Codigo}"           Width="90"/>
+                        <DataGridTextColumn Header="Nombre"      Binding="{Binding Nombre}"           Width="*"/>
+                        <DataGridTextColumn Header="Tipo"        Binding="{Binding TipoMaterial}"     Width="100"/>
+                        <DataGridTextColumn Header="Unidad"      Binding="{Binding Unidad}"           Width="70"/>
+                        <DataGridTextColumn Header="Stock"       Binding="{Binding Stock, StringFormat={}{0:N2}}"      Width="80"/>
+                        <DataGridTextColumn Header="Mín"         Binding="{Binding StockMinimo, StringFormat={}{0:N2}}" Width="70"/>
+                        <DataGridTextColumn Header="Precio"      Binding="{Binding PrecioBase, StringFormat=\${0:N2}}"  Width="90"/>
+                        <DataGridTextColumn Header="Valor Inv."  Binding="{Binding ValorInventario, StringFormat=\${0:N2}}" Width="100"/>
+                        <DataGridTemplateColumn Header="Acciones" Width="80">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Content="Ajuste" Height="28" Width="70" Margin="4,2"
+                                            Style="{StaticResource PrimaryButtonStyle}" FontSize="11"
+                                            Command="{Binding DataContext.AbrirAjusteCommand,
+                                                      RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                            CommandParameter="{Binding}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Border>
+
+            <!-- Panel ajuste de stock -->
+            <Border Grid.Column="1" Background="White" CornerRadius="12" Padding="20"
+                    Visibility="{Binding MostrarAjuste, Converter={StaticResource BoolToVisibilityConverter}}">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="10" ShadowDepth="0" Color="#000" Opacity="0.07"/>
+                </Border.Effect>
+                <StackPanel>
+                    <TextBlock Text="Ajuste de Stock" FontSize="15" FontWeight="SemiBold"
+                               Foreground="#1E3A5F" Margin="0,0,0,4"/>
+                    <TextBlock Text="{Binding ProductoSeleccionado.Nombre}"
+                               FontSize="13" Foreground="#6B7280" Margin="0,0,0,20"
+                               TextWrapping="Wrap"/>
+
+                    <TextBlock Text="Stock actual:" FontSize="12" Foreground="#374151"/>
+                    <TextBlock Text="{Binding ProductoSeleccionado.Stock, StringFormat={}{0:N2}}"
+                               FontSize="22" FontWeight="Bold" Foreground="#1E3A5F" Margin="0,2,0,16"/>
+
+                    <TextBlock Text="Cantidad de ajuste (+/-)" FontSize="12" FontWeight="SemiBold"
+                               Foreground="#374151" Margin="0,0,0,4"/>
+                    <TextBox Text="{Binding CantidadAjuste, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource InputStyle}" Margin="0,0,0,12"/>
+
+                    <TextBlock Text="Razón del ajuste" FontSize="12" FontWeight="SemiBold"
+                               Foreground="#374151" Margin="0,0,0,4"/>
+                    <TextBox Text="{Binding RazonAjuste, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource InputStyle}" Height="70"
+                             TextWrapping="Wrap" AcceptsReturn="True" Margin="0,0,0,20"/>
+
+                    <Button Content="Aplicar Ajuste"
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            Command="{Binding AplicarAjusteCommand}"
+                            Margin="0,0,0,8"/>
+                    <Button Content="Cancelar"
+                            Style="{StaticResource DangerButtonStyle}"
+                            Command="{Binding CancelarAjusteCommand}"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

@@ -1,0 +1,200 @@
+<UserControl x:Class="GestionComercial.Presentation.Views.Modules.ClientesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="{Binding MostrarFormulario, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=380}"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- ===== PANEL PRINCIPAL ===== -->
+        <Grid Grid.Column="0" Margin="24,20,12,20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Barra superior -->
+            <Grid Grid.Row="0" Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBox Grid.Column="0"
+                         Text="{Binding Filtro, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource InputStyle}"
+                         Tag="🔍 Buscar por nombre, código o identificación..."
+                         Margin="0,0,12,0"/>
+                <Button Grid.Column="1"
+                        Content="+ Nuevo Cliente"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        Width="150"
+                        Command="{Binding NuevoClienteCommand}"/>
+            </Grid>
+
+            <!-- Mensajes -->
+            <TextBlock Grid.Row="1"
+                       Text="{Binding MensajeError}"
+                       Foreground="#EF4444" FontSize="12" Margin="0,0,0,8"
+                       Visibility="{Binding MensajeError, Converter={StaticResource NullToVisibilityConverter}}"/>
+            <TextBlock Grid.Row="2"
+                       Text="{Binding MensajeExito}"
+                       Foreground="#10B981" FontSize="12" Margin="0,0,0,8"
+                       Visibility="{Binding MensajeExito, Converter={StaticResource NullToVisibilityConverter}}"/>
+
+            <!-- DataGrid -->
+            <Border Grid.Row="3" Background="White" CornerRadius="12">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="8" ShadowDepth="0" Color="#000" Opacity="0.05"/>
+                </Border.Effect>
+                <DataGrid ItemsSource="{Binding Clientes}"
+                          SelectedItem="{Binding ClienteSeleccionado}"
+                          Style="{StaticResource ModernDataGridStyle}"
+                          IsReadOnly="True">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Código"         Binding="{Binding CodigoCliente}"        Width="100"/>
+                        <DataGridTextColumn Header="Nombre"         Binding="{Binding Nombre}"               Width="*"/>
+                        <DataGridTextColumn Header="Identificación" Binding="{Binding NumeroIdentificacion}" Width="130"/>
+                        <DataGridTextColumn Header="Categoría"      Binding="{Binding Categoria}"            Width="110"/>
+                        <DataGridTextColumn Header="Crédito Disp."
+                                            Binding="{Binding CreditoDisponible, StringFormat=\${0:N2}}"     Width="110"/>
+                        <DataGridTextColumn Header="Estado"         Binding="{Binding Estado}"               Width="90"/>
+                        <DataGridTemplateColumn Header="Acciones" Width="160">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" Margin="4,2">
+                                        <Button Content="Editar" Width="68" Height="28" Margin="0,0,4,0"
+                                                Style="{StaticResource SecondaryButtonStyle}"
+                                                FontSize="11"
+                                                Command="{Binding DataContext.EditarClienteCommand,
+                                                          RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                CommandParameter="{Binding}"/>
+                                        <Button Content="Bloquear" Width="72" Height="28"
+                                                Style="{StaticResource DangerButtonStyle}"
+                                                FontSize="11"
+                                                Command="{Binding DataContext.BloquearClienteCommand,
+                                                          RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                CommandParameter="{Binding}"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Border>
+        </Grid>
+
+        <!-- ===== PANEL FORMULARIO ===== -->
+        <Border Grid.Column="1"
+                Background="White" CornerRadius="12"
+                Margin="0,20,24,20" Padding="20"
+                Visibility="{Binding MostrarFormulario, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="10" ShadowDepth="0" Color="#000" Opacity="0.07"/>
+            </Border.Effect>
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <TextBlock Text="{Binding EsEdicion, Converter={StaticResource BoolToLoadingTextConverter},
+                                       ConverterParameter=Editar Cliente|Nuevo Cliente}"
+                               FontSize="16" FontWeight="SemiBold" Foreground="#1E3A5F"
+                               Margin="0,0,0,20"/>
+
+                    <TextBlock Text="Nombre *" Style="{StaticResource {x:Type TextBlock}}"
+                               FontSize="12" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,4"/>
+                    <TextBox Text="{Binding FormNombre, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource InputStyle}" Margin="0,0,0,12"/>
+
+                    <TextBlock Text="Tipo de Identificación" FontSize="12" FontWeight="SemiBold"
+                               Foreground="#374151" Margin="0,0,0,4"/>
+                    <ComboBox SelectedItem="{Binding FormTipoIdentificacion}"
+                              Style="{StaticResource InputComboStyle}" Margin="0,0,0,12">
+                        <ComboBoxItem Content="RUC"/>
+                        <ComboBoxItem Content="CÉDULA"/>
+                        <ComboBoxItem Content="PASAPORTE"/>
+                    </ComboBox>
+
+                    <TextBlock Text="Número de Identificación *" FontSize="12" FontWeight="SemiBold"
+                               Foreground="#374151" Margin="0,0,0,4"/>
+                    <TextBox Text="{Binding FormNumeroIdentificacion, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource InputStyle}" Margin="0,0,0,12"/>
+
+                    <TextBlock Text="Categoría" FontSize="12" FontWeight="SemiBold"
+                               Foreground="#374151" Margin="0,0,0,4"/>
+                    <ComboBox SelectedItem="{Binding FormCategoria}"
+                              Style="{StaticResource InputComboStyle}" Margin="0,0,0,12">
+                        <ComboBoxItem Content="Transportista"/>
+                        <ComboBoxItem Content="Mayorista"/>
+                        <ComboBoxItem Content="Minorista"/>
+                    </ComboBox>
+
+                    <TextBlock Text="Email" FontSize="12" FontWeight="SemiBold"
+                               Foreground="#374151" Margin="0,0,0,4"/>
+                    <TextBox Text="{Binding FormEmail, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource InputStyle}" Margin="0,0,0,12"/>
+
+                    <TextBlock Text="Teléfono" FontSize="12" FontWeight="SemiBold"
+                               Foreground="#374151" Margin="0,0,0,4"/>
+                    <TextBox Text="{Binding FormTelefono, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource InputStyle}" Margin="0,0,0,12"/>
+
+                    <TextBlock Text="Dirección" FontSize="12" FontWeight="SemiBold"
+                               Foreground="#374151" Margin="0,0,0,4"/>
+                    <TextBox Text="{Binding FormDireccion, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource InputStyle}" Margin="0,0,0,12"/>
+
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Descuento (%)" FontSize="12" FontWeight="SemiBold"
+                                       Foreground="#374151" Margin="0,0,0,4"/>
+                            <TextBox Text="{Binding FormDescuento, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource InputStyle}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Plazo Crédito (días)" FontSize="12" FontWeight="SemiBold"
+                                       Foreground="#374151" Margin="0,0,0,4"/>
+                            <TextBox Text="{Binding FormPlazoCredito, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource InputStyle}"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <TextBlock Text="Límite de Crédito ($)" FontSize="12" FontWeight="SemiBold"
+                               Foreground="#374151" Margin="0,0,0,4"/>
+                    <TextBox Text="{Binding FormLimiteCredito, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource InputStyle}" Margin="0,0,0,12"/>
+
+                    <TextBlock Text="Observaciones" FontSize="12" FontWeight="SemiBold"
+                               Foreground="#374151" Margin="0,0,0,4"/>
+                    <TextBox Text="{Binding FormObservaciones, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource InputStyle}" Height="70"
+                             TextWrapping="Wrap" AcceptsReturn="True" Margin="0,0,0,20"/>
+
+                    <TextBlock Text="{Binding MensajeError}" Foreground="#EF4444" FontSize="12"
+                               Margin="0,0,0,8"
+                               Visibility="{Binding MensajeError, Converter={StaticResource NullToVisibilityConverter}}"/>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" Content="Cancelar"
+                                Style="{StaticResource DangerButtonStyle}"
+                                Command="{Binding CancelarFormularioCommand}"/>
+                        <Button Grid.Column="2" Content="Guardar"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                Command="{Binding GuardarClienteCommand}"/>
+                    </Grid>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+    </Grid>
+</UserControl>

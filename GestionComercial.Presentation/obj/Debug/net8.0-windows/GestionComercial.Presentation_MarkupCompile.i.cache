@@ -1,0 +1,20 @@
+﻿GestionComercial.Presentation
+1.0.0.0
+
+winexe
+C#
+.cs
+C:\Users\super\Documents\Proyectos full stack\Aplicaciones Escritorio\GestionComercial.Presentation\obj\Debug\net8.0-windows\
+GestionComercial.Presentation
+none
+false
+TRACE;DEBUG;NET;NET8_0;NETCOREAPP;WINDOWS;WINDOWS7_0;NET5_0_OR_GREATER;NET6_0_OR_GREATER;NET7_0_OR_GREATER;NET8_0_OR_GREATER;NETCOREAPP3_0_OR_GREATER;NETCOREAPP3_1_OR_GREATER;WINDOWS7_0_OR_GREATER
+C:\Users\super\Documents\Proyectos full stack\Aplicaciones Escritorio\GestionComercial.Presentation\App.xaml
+10-847338512
+
+27-1154461685
+2751113185553
+Views\LoginWindow.xaml;Views\MainShellWindow.xaml;Views\Modules\ClientesView.xaml;Views\Modules\DashboardView.xaml;Views\Modules\FacturasView.xaml;Views\Modules\InventarioView.xaml;Views\Modules\PesajesView.xaml;Views\Modules\UsuariosView.xaml;Views\Modules\VehiculosView.xaml;Views\Modules\VentasView.xaml;
+
+False
+
