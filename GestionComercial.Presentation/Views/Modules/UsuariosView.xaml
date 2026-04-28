@@ -165,13 +165,11 @@
                             </Grid>
 
                             <TextBlock Text="Rol" FontSize="12" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,4"/>
-                            <ComboBox SelectedValue="{Binding FormRolId}"
-                                      SelectedValuePath="Tag"
-                                      Style="{StaticResource InputComboStyle}" Margin="0,0,0,12">
-                                <ComboBoxItem Content="Administrador" Tag="1"/>
-                                <ComboBoxItem Content="Operador"      Tag="2"/>
-                                <ComboBoxItem Content="Supervisor"      Tag="3"/>
-                            </ComboBox>
+                            <ComboBox ItemsSource="{Binding Roles}"
+                                      DisplayMemberPath="Nombre"
+                                      SelectedValuePath="Id"
+                                      SelectedValue="{Binding FormRolId}"
+                                      Style="{StaticResource InputComboStyle}" Margin="0,0,0,12"/>
 
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
                                 <TextBlock Text="Contraseña" FontSize="12" FontWeight="SemiBold" Foreground="#374151"/>

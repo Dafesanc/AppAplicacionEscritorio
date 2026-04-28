@@ -65,6 +65,20 @@ public class VentaDTO
 }
 
 /// <summary>
+/// DTO para crear Venta manual (sin pesajes de báscula)
+/// </summary>
+public class CrearVentaManualDTO
+{
+    public int IdCliente { get; set; }
+    public int? IdVehiculo { get; set; }
+    public decimal? PesoNetoKg { get; set; }
+    public decimal Total { get; set; }
+    public decimal Descuento { get; set; }
+    public string TipoDocumento { get; set; } = "TICKET";
+    public int UsuarioId { get; set; }
+}
+
+/// <summary>
 /// DTO para crear Venta
 /// </summary>
 public class CrearVentaDTO

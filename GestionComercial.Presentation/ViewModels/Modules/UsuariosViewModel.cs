@@ -27,6 +27,14 @@ public partial class UsuariosViewModel : ObservableObject
     [ObservableProperty] private int _formRolId = 2;
     [ObservableProperty] private string _formContrasena = string.Empty;
 
+    public record RolItem(int Id, string Nombre);
+    public RolItem[] Roles { get; } =
+    {
+        new(1, "Administrador"),
+        new(2, "Operador"),
+        new(3, "Supervisor")
+    };
+
     private List<UsuarioDTO> _todosLosUsuarios = new();
 
     public UsuariosViewModel(IUsuarioService usuarioService)

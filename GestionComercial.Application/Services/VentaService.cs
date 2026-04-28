@@ -118,6 +118,38 @@ public class VentaService : IVentaService
         }
     }
 
+    public async Task<int?> CrearManualAsync(CrearVentaManualDTO dto)
+    {
+        try
+        {
+            var totalFinal = Math.Max(0, dto.Total - dto.Descuento);
+            var venta = new Venta
+            {
+                NumeroVenta      = $"VENTA-{DateTime.Now:yyyyMMddHHmmss}",
+                ID_Cliente       = dto.IdCliente,
+                ID_Vehiculo      = dto.IdVehiculo is > 0 ? dto.IdVehiculo : null,
+                PesoNetoKg       = dto.PesoNetoKg,
+                Subtotal         = dto.Total,
+                DescuentosAplicados = dto.Descuento,
+                IVA              = 0,
+                TotalVenta       = totalFinal,
+                TipoDocumento    = dto.TipoDocumento,
+                EstadoVenta      = "BORRADOR",
+                UsuarioVenta     = dto.UsuarioId,
+                FechaVenta       = DateTime.Now,
+                FechaModificacion = DateTime.Now
+            };
+            await _ventaRepository.AgregarAsync(venta);
+            _logger.LogInformation("Venta manual creada: {NumeroVenta}", venta.NumeroVenta);
+            return venta.ID_Venta;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error en CrearManualAsync");
+            return null;
+        }
+    }
+
     public async Task<bool> MarkupSaleComplete(int idVenta)
     {
         try

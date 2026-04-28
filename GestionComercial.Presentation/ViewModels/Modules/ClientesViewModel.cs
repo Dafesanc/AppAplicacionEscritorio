@@ -32,6 +32,9 @@ public partial class ClientesViewModel : ObservableObject
     [ObservableProperty] private decimal _formLimiteCredito;
     [ObservableProperty] private string _formObservaciones = string.Empty;
 
+    public string[] TiposIdentificacion { get; } = { "RUC", "CÉDULA", "PASAPORTE" };
+    public string[] Categorias { get; } = { "Transportista", "Mayorista", "Minorista" };
+
     private List<ClienteDTO> _todosLosClientes = new();
 
     public ClientesViewModel(IClienteService clienteService)

@@ -147,24 +147,18 @@
                                      Style="{StaticResource InputStyle}" Margin="0,0,0,12"/>
 
                             <TextBlock Text="Tipo de Identificación" FontSize="12" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,4"/>
-                            <ComboBox SelectedItem="{Binding FormTipoIdentificacion}"
-                                      Style="{StaticResource InputComboStyle}" Margin="0,0,0,12">
-                                <ComboBoxItem Content="RUC"/>
-                                <ComboBoxItem Content="CÉDULA"/>
-                                <ComboBoxItem Content="PASAPORTE"/>
-                            </ComboBox>
+                            <ComboBox ItemsSource="{Binding TiposIdentificacion}"
+                                      SelectedItem="{Binding FormTipoIdentificacion}"
+                                      Style="{StaticResource InputComboStyle}" Margin="0,0,0,12"/>
 
                             <TextBlock Text="Número de Identificación *" FontSize="12" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,4"/>
                             <TextBox Text="{Binding FormNumeroIdentificacion, UpdateSourceTrigger=PropertyChanged}"
                                      Style="{StaticResource InputStyle}" Margin="0,0,0,12"/>
 
                             <TextBlock Text="Categoría" FontSize="12" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,4"/>
-                            <ComboBox SelectedItem="{Binding FormCategoria}"
-                                      Style="{StaticResource InputComboStyle}" Margin="0,0,0,12">
-                                <ComboBoxItem Content="Transportista"/>
-                                <ComboBoxItem Content="Mayorista"/>
-                                <ComboBoxItem Content="Minorista"/>
-                            </ComboBox>
+                            <ComboBox ItemsSource="{Binding Categorias}"
+                                      SelectedItem="{Binding FormCategoria}"
+                                      Style="{StaticResource InputComboStyle}" Margin="0,0,0,12"/>
 
                             <Grid Margin="0,0,0,12">
                                 <Grid.ColumnDefinitions>

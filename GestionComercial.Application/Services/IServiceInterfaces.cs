@@ -28,6 +28,7 @@ public interface IVentaService
     Task<IEnumerable<VentaDTO>> ObtenerPorClienteAsync(int idCliente);
     Task<IEnumerable<VentaDTO>> ObtenerPorFechaAsync(DateTime desde, DateTime hasta);
     Task<int?> CrearAsync(CrearVentaDTO ventaDTO);
+    Task<int?> CrearManualAsync(CrearVentaManualDTO dto);
     Task<bool> MarkupSaleComplete(int idVenta);
     Task<decimal> ObtenerTotalVendidoAsync(DateTime desde, DateTime hasta);
 }
