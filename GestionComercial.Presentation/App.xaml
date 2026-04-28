@@ -157,6 +157,8 @@
                 <Setter Property="CanUserResizeRows"     Value="False"/>
                 <Setter Property="HeadersVisibility"     Value="Column"/>
                 <Setter Property="FontSize"              Value="13"/>
+                <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
+                <Setter Property="ScrollViewer.CanContentScroll" Value="True"/>
             </Style>
 
             <!-- ===== Estilo encabezado DataGrid ===== -->

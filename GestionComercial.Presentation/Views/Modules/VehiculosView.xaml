@@ -128,18 +128,39 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="Acciones" Width="160">
+                            <DataGridTemplateColumn Header="Acciones" Width="185">
+                                <DataGridTemplateColumn.CellStyle>
+                                    <Style TargetType="DataGridCell">
+                                        <Setter Property="Padding" Value="4,2"/>
+                                        <Setter Property="BorderThickness" Value="0"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="DataGridCell">
+                                                    <Border Padding="{TemplateBinding Padding}"
+                                                            Background="{TemplateBinding Background}">
+                                                        <ContentPresenter VerticalAlignment="Center"/>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsSelected" Value="True">
+                                                <Setter Property="Background" Value="#EFF6FF"/>
+                                                <Setter Property="Foreground" Value="#1E3A5F"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </DataGridTemplateColumn.CellStyle>
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <StackPanel Orientation="Horizontal" Margin="4,2">
-                                            <Button Content="✏ Editar" Width="76" Height="28" Margin="0,0,6,0"
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button Content="✏ Editar" Width="82" Height="28" Margin="0,0,6,0"
                                                     Style="{StaticResource SecondaryButtonStyle}" FontSize="11"
                                                     Command="{Binding DataContext.EditarVehiculoCommand,
                                                         RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                     CommandParameter="{Binding}"/>
-                                            <Button Content="{Binding Estado,
-                                                        Converter={StaticResource BoolToActiveTagConverter}}"
-                                                    Width="66" Height="28"
+                                            <Button Content="🗑 Inactivar"
+                                                    Width="88" Height="28"
                                                     Style="{StaticResource DangerButtonStyle}" FontSize="11"
                                                     Command="{Binding DataContext.CambiarEstadoCommand,
                                                         RelativeSource={RelativeSource AncestorType=UserControl}}"
@@ -194,7 +215,7 @@
                         <Button HorizontalAlignment="Right" VerticalAlignment="Center"
                                 Content="✕" Width="32" Height="32"
                                 Background="#F9FAFB" BorderBrush="#E5E7EB" BorderThickness="1"
-                                FontSize="13" Foreground="#6B7280" CornerRadius="8"
+                                FontSize="13" Foreground="#6B7280"
                                 Cursor="Hand"
                                 Command="{Binding CancelarFormularioCommand}"/>
                     </Grid>

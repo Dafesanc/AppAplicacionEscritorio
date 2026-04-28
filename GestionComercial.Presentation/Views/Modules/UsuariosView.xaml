@@ -52,7 +52,29 @@
                         <DataGridTextColumn Header="Rol"             Binding="{Binding RolNombre}"                                  Width="110"/>
                         <DataGridTextColumn Header="Estado"          Binding="{Binding Estado}"                                     Width="90"/>
                         <DataGridTextColumn Header="Último login"    Binding="{Binding UltimoLogin, StringFormat=dd/MM/yyyy HH:mm}" Width="140"/>
-                        <DataGridTemplateColumn Header="Acciones" Width="170">
+                        <DataGridTemplateColumn Header="Acciones" Width="185">
+                            <DataGridTemplateColumn.CellStyle>
+                                <Style TargetType="DataGridCell">
+                                    <Setter Property="Padding" Value="4,2"/>
+                                    <Setter Property="BorderThickness" Value="0"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="DataGridCell">
+                                                <Border Padding="{TemplateBinding Padding}"
+                                                        Background="{TemplateBinding Background}">
+                                                    <ContentPresenter VerticalAlignment="Center"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter Property="Background" Value="#EFF6FF"/>
+                                            <Setter Property="Foreground" Value="#1E3A5F"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </DataGridTemplateColumn.CellStyle>
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal" Margin="4,2">
@@ -106,7 +128,7 @@
                         <Button HorizontalAlignment="Right" VerticalAlignment="Center"
                                 Content="✕" Width="32" Height="32"
                                 Background="#F9FAFB" BorderBrush="#E5E7EB" BorderThickness="1"
-                                FontSize="13" Foreground="#6B7280" CornerRadius="8"
+                                FontSize="13" Foreground="#6B7280"
                                 Cursor="Hand"
                                 Command="{Binding CancelarFormularioCommand}"/>
                     </Grid>

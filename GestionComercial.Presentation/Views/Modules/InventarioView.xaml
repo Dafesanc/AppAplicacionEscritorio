@@ -94,10 +94,32 @@
                         <DataGridTextColumn Header="Mín"         Binding="{Binding StockMinimo, StringFormat={}{0:N2}}" Width="70"/>
                         <DataGridTextColumn Header="Precio"      Binding="{Binding PrecioBase, StringFormat=\${0:N2}}"  Width="90"/>
                         <DataGridTextColumn Header="Valor Inv."  Binding="{Binding ValorInventario, StringFormat=\${0:N2}}" Width="100"/>
-                        <DataGridTemplateColumn Header="Acciones" Width="80">
+                        <DataGridTemplateColumn Header="Acciones" Width="100">
+                            <DataGridTemplateColumn.CellStyle>
+                                <Style TargetType="DataGridCell">
+                                    <Setter Property="Padding" Value="4,2"/>
+                                    <Setter Property="BorderThickness" Value="0"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="DataGridCell">
+                                                <Border Padding="{TemplateBinding Padding}"
+                                                        Background="{TemplateBinding Background}">
+                                                    <ContentPresenter VerticalAlignment="Center"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter Property="Background" Value="#EFF6FF"/>
+                                            <Setter Property="Foreground" Value="#1E3A5F"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </DataGridTemplateColumn.CellStyle>
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Button Content="Ajuste" Height="28" Width="70" Margin="4,2"
+                                    <Button Content="⚖ Ajuste" Height="28" Width="88"
                                             Style="{StaticResource PrimaryButtonStyle}" FontSize="11"
                                             Command="{Binding DataContext.AbrirAjusteCommand,
                                                       RelativeSource={RelativeSource AncestorType=DataGrid}}"
