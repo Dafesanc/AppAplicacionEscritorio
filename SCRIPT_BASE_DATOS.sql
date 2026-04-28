@@ -47,8 +47,9 @@ CREATE TABLE Usuarios (
     Email NVARCHAR(100),
     Telefono NVARCHAR(20),
     ID_Rol INT NOT NULL,
-    Estado NVARCHAR(20) DEFAULT 'ACTIVO' CHECK (Estado IN ('ACTIVO', 'INACTIVO')),
+    Estado NVARCHAR(20) DEFAULT 'ACTIVO' CHECK (Estado IN ('ACTIVO', 'INACTIVO', 'BLOQUEADO')),
     UltimoLogin DATETIME,
+    IntentosFallidos INT NOT NULL DEFAULT 0,
     FechaCreacion DATETIME DEFAULT GETDATE(),
     FechaModificacion DATETIME DEFAULT GETDATE(),
     FOREIGN KEY (ID_Rol) REFERENCES Roles(ID_Rol)

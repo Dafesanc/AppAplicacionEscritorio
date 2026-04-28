@@ -21,7 +21,6 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
                 <!-- Búsqueda -->
@@ -55,25 +54,20 @@
                 <Button Grid.Column="2"
                         Command="{Binding NuevoVehiculoCommand}"
                         Style="{StaticResource PrimaryButtonStyle}"
-                        Width="150" Height="36">
+                        Width="160" Height="36">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="+" FontSize="16" Margin="0,0,6,0"
-                                   VerticalAlignment="Center"/>
+                        <TextBlock Text="+" FontSize="16" Margin="0,0,6,0" VerticalAlignment="Center"/>
                         <TextBlock Text="Nuevo Vehículo" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
             </Grid>
         </Border>
 
-        <!-- ===== CONTENIDO ===== -->
+        <!-- ===== CONTENIDO: tabla full-width ===== -->
         <Grid Grid.Row="1" Margin="20">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="{Binding MostrarFormulario, Converter={StaticResource BoolVis}, ConverterParameter=0}"/>
-            </Grid.ColumnDefinitions>
 
             <!-- Tabla de vehículos -->
-            <Border Grid.Column="0" Background="White" CornerRadius="8" Margin="0,0,12,0">
+            <Border Background="White" CornerRadius="8">
                 <Border.Effect>
                     <DropShadowEffect BlurRadius="8" ShadowDepth="0" Color="#000" Opacity="0.06"/>
                 </Border.Effect>
@@ -106,23 +100,23 @@
                         </StackPanel>
                     </Border>
 
-                    <!-- DataGrid -->
+                    <!-- DataGrid full-width -->
                     <DataGrid Grid.Row="1"
                               ItemsSource="{Binding Vehiculos}"
                               SelectedItem="{Binding VehiculoSeleccionado}"
                               Style="{StaticResource ModernDataGridStyle}">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Placa"   Binding="{Binding Placa}"        Width="90"/>
-                            <DataGridTextColumn Header="Tipo"    Binding="{Binding Tipo}"          Width="90"/>
-                            <DataGridTextColumn Header="Cliente" Binding="{Binding ClienteNombre}" Width="*"/>
-                            <DataGridTextColumn Header="Marca"   Binding="{Binding Marca}"         Width="90"/>
-                            <DataGridTextColumn Header="Modelo"  Binding="{Binding Modelo}"        Width="90"/>
+                            <DataGridTextColumn Header="Placa"    Binding="{Binding Placa}"         Width="100"/>
+                            <DataGridTextColumn Header="Tipo"     Binding="{Binding Tipo}"           Width="110"/>
+                            <DataGridTextColumn Header="Cliente"  Binding="{Binding ClienteNombre}"  Width="*"/>
+                            <DataGridTextColumn Header="Marca"    Binding="{Binding Marca}"          Width="100"/>
+                            <DataGridTextColumn Header="Modelo"   Binding="{Binding Modelo}"         Width="100"/>
                             <DataGridTextColumn Header="Cap. (t)"
                                                 Binding="{Binding CapacidadTon, StringFormat='{}{0:F2}'}"
-                                                Width="70"/>
+                                                Width="80"/>
                             <DataGridTextColumn Header="Tara (kg)"
                                                 Binding="{Binding PesoTaraKg, StringFormat='{}{0:F0}'}"
-                                                Width="80"/>
+                                                Width="90"/>
                             <DataGridTemplateColumn Header="Estado" Width="100">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
@@ -134,25 +128,22 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="Acciones" Width="130">
+                            <DataGridTemplateColumn Header="Acciones" Width="160">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <StackPanel Orientation="Horizontal">
-                                            <Button Content="✏ Editar"
+                                        <StackPanel Orientation="Horizontal" Margin="4,2">
+                                            <Button Content="✏ Editar" Width="76" Height="28" Margin="0,0,6,0"
+                                                    Style="{StaticResource SecondaryButtonStyle}" FontSize="11"
                                                     Command="{Binding DataContext.EditarVehiculoCommand,
                                                         RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                    CommandParameter="{Binding}"
-                                                    Background="Transparent" BorderThickness="0"
-                                                    Foreground="#1E3A5F" FontSize="11"
-                                                    Cursor="Hand" Margin="0,0,6,0"/>
+                                                    CommandParameter="{Binding}"/>
                                             <Button Content="{Binding Estado,
                                                         Converter={StaticResource BoolToActiveTagConverter}}"
+                                                    Width="66" Height="28"
+                                                    Style="{StaticResource DangerButtonStyle}" FontSize="11"
                                                     Command="{Binding DataContext.CambiarEstadoCommand,
                                                         RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                    CommandParameter="{Binding}"
-                                                    Background="Transparent" BorderThickness="0"
-                                                    Foreground="#6B7280" FontSize="11"
-                                                    Cursor="Hand"/>
+                                                    CommandParameter="{Binding}"/>
                                         </StackPanel>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
@@ -161,161 +152,10 @@
                     </DataGrid>
                 </Grid>
             </Border>
-
-            <!-- Panel formulario -->
-            <Border Grid.Column="1"
-                    Background="White" CornerRadius="8"
-                    Width="340"
-                    Visibility="{Binding MostrarFormulario, Converter={StaticResource BoolVis}}">
-                <Border.Effect>
-                    <DropShadowEffect BlurRadius="8" ShadowDepth="0" Color="#000" Opacity="0.06"/>
-                </Border.Effect>
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <StackPanel Margin="20">
-                        <!-- Título formulario -->
-                        <TextBlock Text="{Binding TituloFormulario}"
-                                   FontSize="15" FontWeight="Bold"
-                                   Foreground="#1E3A5F" Margin="0,0,0,16"/>
-
-                        <!-- Mensaje error/éxito -->
-                        <Border Background="#FEF2F2" CornerRadius="6" Padding="10,8" Margin="0,0,0,10"
-                                Visibility="{Binding MensajeError, Converter={StaticResource NullToVisibilityConverter}}">
-                            <TextBlock Text="{Binding MensajeError}" Foreground="#EF4444" FontSize="12" TextWrapping="Wrap"/>
-                        </Border>
-
-                        <!-- Cliente -->
-                        <TextBlock Text="Cliente *" FontSize="12" FontWeight="SemiBold"
-                                   Foreground="#374151" Margin="0,0,0,4"/>
-                        <ComboBox ItemsSource="{Binding Clientes}"
-                                  SelectedValuePath="IdCliente"
-                                  SelectedValue="{Binding FormIdCliente}"
-                                  DisplayMemberPath="Nombre"
-                                  Style="{StaticResource InputComboStyle}"
-                                  Margin="0,0,0,12"/>
-
-                        <!-- Placa -->
-                        <TextBlock Text="Placa *" FontSize="12" FontWeight="SemiBold"
-                                   Foreground="#374151" Margin="0,0,0,4"/>
-                        <TextBox Text="{Binding FormPlaca, UpdateSourceTrigger=PropertyChanged}"
-                                 Style="{StaticResource InputStyle}"
-                                 IsEnabled="{Binding EsEdicion, Converter={StaticResource InverseBoolConverter}}"
-                                 CharacterCasing="Upper"
-                                 Margin="0,0,0,12"/>
-
-                        <!-- Tipo -->
-                        <TextBlock Text="Tipo *" FontSize="12" FontWeight="SemiBold"
-                                   Foreground="#374151" Margin="0,0,0,4"/>
-                        <ComboBox ItemsSource="{Binding TiposVehiculo}"
-                                  SelectedItem="{Binding FormTipo}"
-                                  Style="{StaticResource InputComboStyle}"
-                                  Margin="0,0,0,12"/>
-
-                        <!-- Marca / Modelo -->
-                        <Grid Margin="0,0,0,12">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="8"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Column="0">
-                                <TextBlock Text="Marca" FontSize="12" FontWeight="SemiBold"
-                                           Foreground="#374151" Margin="0,0,0,4"/>
-                                <TextBox Text="{Binding FormMarca, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource InputStyle}"/>
-                            </StackPanel>
-                            <StackPanel Grid.Column="2">
-                                <TextBlock Text="Modelo" FontSize="12" FontWeight="SemiBold"
-                                           Foreground="#374151" Margin="0,0,0,4"/>
-                                <TextBox Text="{Binding FormModelo, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource InputStyle}"/>
-                            </StackPanel>
-                        </Grid>
-
-                        <!-- Color / Año -->
-                        <Grid Margin="0,0,0,12">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="8"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Column="0">
-                                <TextBlock Text="Color" FontSize="12" FontWeight="SemiBold"
-                                           Foreground="#374151" Margin="0,0,0,4"/>
-                                <TextBox Text="{Binding FormColor, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource InputStyle}"/>
-                            </StackPanel>
-                            <StackPanel Grid.Column="2">
-                                <TextBlock Text="Año" FontSize="12" FontWeight="SemiBold"
-                                           Foreground="#374151" Margin="0,0,0,4"/>
-                                <TextBox Text="{Binding FormAno, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource InputStyle}"/>
-                            </StackPanel>
-                        </Grid>
-
-                        <!-- Capacidad / Tara -->
-                        <Grid Margin="0,0,0,12">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="8"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Column="0">
-                                <TextBlock Text="Cap. (ton)" FontSize="12" FontWeight="SemiBold"
-                                           Foreground="#374151" Margin="0,0,0,4"/>
-                                <TextBox Text="{Binding FormCapacidad, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource InputStyle}"/>
-                            </StackPanel>
-                            <StackPanel Grid.Column="2">
-                                <TextBlock Text="Tara (kg)" FontSize="12" FontWeight="SemiBold"
-                                           Foreground="#374151" Margin="0,0,0,4"/>
-                                <TextBox Text="{Binding FormPesoTara, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource InputStyle}"/>
-                            </StackPanel>
-                        </Grid>
-
-                        <!-- VIN -->
-                        <TextBlock Text="VIN / Chasis" FontSize="12" FontWeight="SemiBold"
-                                   Foreground="#374151" Margin="0,0,0,4"/>
-                        <TextBox Text="{Binding FormVin, UpdateSourceTrigger=PropertyChanged}"
-                                 Style="{StaticResource InputStyle}"
-                                 Margin="0,0,0,12"/>
-
-                        <!-- Observaciones -->
-                        <TextBlock Text="Observaciones" FontSize="12" FontWeight="SemiBold"
-                                   Foreground="#374151" Margin="0,0,0,4"/>
-                        <TextBox Text="{Binding FormObservaciones, UpdateSourceTrigger=PropertyChanged}"
-                                 Height="60" TextWrapping="Wrap" AcceptsReturn="True"
-                                 VerticalContentAlignment="Top" Padding="10,8"
-                                 FontSize="13" BorderBrush="#D1D5DB"
-                                 BorderThickness="1" Background="White"
-                                 Margin="0,0,0,16"/>
-
-                        <!-- Botones -->
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="8"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Button Grid.Column="0"
-                                    Content="Cancelar"
-                                    Command="{Binding CancelarFormularioCommand}"
-                                    Style="{StaticResource SecondaryButtonStyle}"
-                                    Height="36"/>
-                            <Button Grid.Column="2"
-                                    Content="Guardar"
-                                    Command="{Binding GuardarCommand}"
-                                    Style="{StaticResource PrimaryButtonStyle}"
-                                    IsEnabled="{Binding EstaCargando, Converter={StaticResource InverseBoolConverter}}"
-                                    Height="36"/>
-                        </Grid>
-                    </StackPanel>
-                </ScrollViewer>
-            </Border>
         </Grid>
 
         <!-- Mensaje éxito flotante -->
-        <Border HorizontalAlignment="Center" VerticalAlignment="Bottom"
+        <Border Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Bottom"
                 Margin="0,0,0,24" Padding="16,10"
                 Background="#059669" CornerRadius="8"
                 Visibility="{Binding MensajeExito, Converter={StaticResource NullToVisibilityConverter}}">
@@ -324,5 +164,162 @@
             </Border.Effect>
             <TextBlock Text="{Binding MensajeExito}" Foreground="White" FontSize="13"/>
         </Border>
+
+        <!-- ===== MODAL OVERLAY ===== -->
+        <Grid Grid.RowSpan="2" Background="#B2000000"
+              Visibility="{Binding MostrarFormulario, Converter={StaticResource BoolVis}}">
+
+            <Border MaxWidth="520" MaxHeight="680"
+                    HorizontalAlignment="Center" VerticalAlignment="Center"
+                    Background="White" CornerRadius="16"
+                    Margin="32">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="32" ShadowDepth="0" Opacity="0.30"/>
+                </Border.Effect>
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Cabecera del modal -->
+                    <Grid Grid.Row="0" Margin="24,20,16,0">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Width="4" Height="20" Background="#F59E0B" CornerRadius="2" Margin="0,0,10,0"/>
+                            <TextBlock Text="{Binding TituloFormulario}"
+                                       FontSize="17" FontWeight="Bold" Foreground="#1E3A5F"/>
+                        </StackPanel>
+                        <Button HorizontalAlignment="Right" VerticalAlignment="Center"
+                                Content="✕" Width="32" Height="32"
+                                Background="#F9FAFB" BorderBrush="#E5E7EB" BorderThickness="1"
+                                FontSize="13" Foreground="#6B7280" CornerRadius="8"
+                                Cursor="Hand"
+                                Command="{Binding CancelarFormularioCommand}"/>
+                    </Grid>
+                    <Separator Grid.Row="0" VerticalAlignment="Bottom" Background="#F3F4F6" Margin="0,60,0,0"/>
+
+                    <!-- Campos del formulario -->
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                        <StackPanel Margin="24,16,24,4">
+
+                            <!-- Mensaje error -->
+                            <Border Background="#FEF2F2" CornerRadius="8" Padding="12,8" Margin="0,0,0,12"
+                                    Visibility="{Binding MensajeError, Converter={StaticResource NullToVisibilityConverter}}">
+                                <TextBlock Text="{Binding MensajeError}" Foreground="#EF4444" FontSize="12" TextWrapping="Wrap"/>
+                            </Border>
+
+                            <!-- Cliente -->
+                            <TextBlock Text="Cliente *" FontSize="12" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,4"/>
+                            <ComboBox ItemsSource="{Binding Clientes}"
+                                      SelectedValuePath="IdCliente"
+                                      SelectedValue="{Binding FormIdCliente}"
+                                      DisplayMemberPath="Nombre"
+                                      Style="{StaticResource InputComboStyle}"
+                                      Margin="0,0,0,12"/>
+
+                            <!-- Placa -->
+                            <TextBlock Text="Placa *" FontSize="12" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,4"/>
+                            <TextBox Text="{Binding FormPlaca, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource InputStyle}"
+                                     IsEnabled="{Binding EsEdicion, Converter={StaticResource InverseBoolConverter}}"
+                                     CharacterCasing="Upper"
+                                     Margin="0,0,0,12"/>
+
+                            <!-- Tipo -->
+                            <TextBlock Text="Tipo *" FontSize="12" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,4"/>
+                            <ComboBox ItemsSource="{Binding TiposVehiculo}"
+                                      SelectedItem="{Binding FormTipo}"
+                                      Style="{StaticResource InputComboStyle}"
+                                      Margin="0,0,0,12"/>
+
+                            <!-- Marca / Modelo -->
+                            <Grid Margin="0,0,0,12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="12"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Marca" FontSize="12" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,4"/>
+                                    <TextBox Text="{Binding FormMarca, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource InputStyle}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Modelo" FontSize="12" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,4"/>
+                                    <TextBox Text="{Binding FormModelo, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource InputStyle}"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- Color / Año -->
+                            <Grid Margin="0,0,0,12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="12"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Color" FontSize="12" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,4"/>
+                                    <TextBox Text="{Binding FormColor, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource InputStyle}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Año" FontSize="12" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,4"/>
+                                    <TextBox Text="{Binding FormAno, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource InputStyle}"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- Capacidad / Tara -->
+                            <Grid Margin="0,0,0,12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="12"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Cap. (ton)" FontSize="12" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,4"/>
+                                    <TextBox Text="{Binding FormCapacidad, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource InputStyle}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Tara (kg)" FontSize="12" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,4"/>
+                                    <TextBox Text="{Binding FormPesoTara, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource InputStyle}"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- VIN -->
+                            <TextBlock Text="VIN / Chasis" FontSize="12" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,4"/>
+                            <TextBox Text="{Binding FormVin, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource InputStyle}" Margin="0,0,0,12"/>
+
+                            <!-- Observaciones -->
+                            <TextBlock Text="Observaciones" FontSize="12" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,4"/>
+                            <TextBox Text="{Binding FormObservaciones, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource InputStyle}"
+                                     Height="60" TextWrapping="Wrap" AcceptsReturn="True"
+                                     VerticalContentAlignment="Top" Margin="0,0,0,4"/>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <!-- Botones footer -->
+                    <Border Grid.Row="2" BorderBrush="#F3F4F6" BorderThickness="0,1,0,0" Padding="24,14">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Button Grid.Column="0" Content="Cancelar"
+                                    Command="{Binding CancelarFormularioCommand}"
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    Height="36"/>
+                            <Button Grid.Column="2" Content="Guardar"
+                                    Command="{Binding GuardarCommand}"
+                                    Style="{StaticResource PrimaryButtonStyle}"
+                                    IsEnabled="{Binding EstaCargando, Converter={StaticResource InverseBoolConverter}}"
+                                    Height="36"/>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Border>
+        </Grid>
     </Grid>
 </UserControl>

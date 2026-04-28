@@ -1,0 +1,118 @@
+# ============================================================
+#  GestionComercial — .NET 8 WPF  |  .gitignore
+# ============================================================
+
+# ----------------------------------------------------------
+# COMPILACIÓN Y ARTEFACTOS (generados automáticamente)
+# ----------------------------------------------------------
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+*.dll
+*.exe
+*.pdb
+*.cache
+*.ilk
+*.meta
+*.iobj
+*.ipdb
+
+# NuGet — los paquetes se restauran con `dotnet restore`
+packages/
+*.nupkg
+*.snupkg
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# MSBuild
+*.binlog
+
+# ----------------------------------------------------------
+# VISUAL STUDIO
+# ----------------------------------------------------------
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+*.VC.db
+*.VC.opendb
+.localhistory/
+**/*.rsuser
+
+# Archivos de diagnóstico de VS
+*.DiagSession
+*.diagsession
+
+# Rider / JetBrains
+.idea/
+*.sln.iml
+
+# VS Code (IDE-specific, no necesario para compilar)
+.vscode/
+
+# ----------------------------------------------------------
+# CONFIGURACIÓN CON CREDENCIALES  ⚠️  SEGURIDAD
+# ----------------------------------------------------------
+# El appsettings.json contiene usuario y contraseña de SQL Server.
+# Cada desarrollador debe copiar appsettings.example.json y
+# completar sus propios datos de conexión localmente.
+GestionComercial.Presentation/appsettings.json
+
+# Archivos de entorno local con secretos
+*.env
+*.env.local
+.secrets/
+secrets.json
+
+# ----------------------------------------------------------
+# BASE DE DATOS SQLITE LOCAL
+# ----------------------------------------------------------
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# ----------------------------------------------------------
+# LOGS DE LA APLICACIÓN
+# ----------------------------------------------------------
+GestionComercial.Presentation/logs/
+*.log
+*.txt.bak
+
+# ----------------------------------------------------------
+# HERRAMIENTAS DE IA / CLAUDE CODE (máquina-específico)
+# ----------------------------------------------------------
+.claude/
+.agents/
+skills-lock.json
+
+# ----------------------------------------------------------
+# SISTEMA OPERATIVO
+# ----------------------------------------------------------
+# Windows
+Thumbs.db
+Thumbs.db:encdata
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# macOS (por si trabajan en Mac)
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# ----------------------------------------------------------
+# PUBLICACIÓN / DEPLOYMENT
+# ----------------------------------------------------------
+publish/
+PublishProfiles/
+*.pubxml
+*.pubxml.user

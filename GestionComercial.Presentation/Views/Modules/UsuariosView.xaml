@@ -3,13 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="{Binding MostrarFormulario, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=360}"/>
-        </Grid.ColumnDefinitions>
-
-        <!-- ===== PANEL PRINCIPAL ===== -->
-        <Grid Grid.Column="0" Margin="24,20,12,20">
+        <!-- ===== CONTENIDO PRINCIPAL: siempre ocupa el ancho completo ===== -->
+        <Grid Margin="24,20">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
@@ -17,6 +12,7 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
+            <!-- Barra superior -->
             <Grid Grid.Row="0" Margin="0,0,0,16">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -32,6 +28,7 @@
                         Command="{Binding NuevoUsuarioCommand}"/>
             </Grid>
 
+            <!-- Mensajes -->
             <TextBlock Grid.Row="1" Text="{Binding MensajeError}"
                        Foreground="#EF4444" FontSize="12" Margin="0,0,0,8"
                        Visibility="{Binding MensajeError, Converter={StaticResource NullToVisibilityConverter}}"/>
@@ -39,6 +36,7 @@
                        Foreground="#10B981" FontSize="12" Margin="0,0,0,8"
                        Visibility="{Binding MensajeExito, Converter={StaticResource NullToVisibilityConverter}}"/>
 
+            <!-- DataGrid full-width -->
             <Border Grid.Row="3" Background="White" CornerRadius="12">
                 <Border.Effect>
                     <DropShadowEffect BlurRadius="8" ShadowDepth="0" Color="#000" Opacity="0.05"/>
@@ -48,22 +46,22 @@
                           Style="{StaticResource ModernDataGridStyle}"
                           IsReadOnly="True">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="Usuario"        Binding="{Binding NombreUsuario}"                              Width="130"/>
-                        <DataGridTextColumn Header="Nombre completo" Binding="{Binding NombreCompleto}"                           Width="*"/>
-                        <DataGridTextColumn Header="Email"          Binding="{Binding Email}"                                     Width="180"/>
-                        <DataGridTextColumn Header="Rol"            Binding="{Binding RolNombre}"                                 Width="100"/>
-                        <DataGridTextColumn Header="Estado"         Binding="{Binding Estado}"                                    Width="90"/>
-                        <DataGridTextColumn Header="Último login"   Binding="{Binding UltimoLogin, StringFormat=dd/MM/yyyy HH:mm}" Width="130"/>
-                        <DataGridTemplateColumn Header="Acciones" Width="160">
+                        <DataGridTextColumn Header="Usuario"         Binding="{Binding NombreUsuario}"                               Width="130"/>
+                        <DataGridTextColumn Header="Nombre completo" Binding="{Binding NombreCompleto}"                              Width="*"/>
+                        <DataGridTextColumn Header="Email"           Binding="{Binding Email}"                                      Width="190"/>
+                        <DataGridTextColumn Header="Rol"             Binding="{Binding RolNombre}"                                  Width="110"/>
+                        <DataGridTextColumn Header="Estado"          Binding="{Binding Estado}"                                     Width="90"/>
+                        <DataGridTextColumn Header="Último login"    Binding="{Binding UltimoLogin, StringFormat=dd/MM/yyyy HH:mm}" Width="140"/>
+                        <DataGridTemplateColumn Header="Acciones" Width="170">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal" Margin="4,2">
-                                        <Button Content="Editar" Width="68" Height="28" Margin="0,0,4,0"
+                                        <Button Content="Editar" Width="70" Height="28" Margin="0,0,6,0"
                                                 Style="{StaticResource SecondaryButtonStyle}" FontSize="11"
                                                 Command="{Binding DataContext.EditarUsuarioCommand,
                                                           RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                                 CommandParameter="{Binding}"/>
-                                        <Button Content="Inactivar" Width="78" Height="28"
+                                        <Button Content="Inactivar" Width="80" Height="28"
                                                 Style="{StaticResource DangerButtonStyle}" FontSize="11"
                                                 Command="{Binding DataContext.InactivarUsuarioCommand,
                                                           RelativeSource={RelativeSource AncestorType=DataGrid}}"
@@ -77,81 +75,117 @@
             </Border>
         </Grid>
 
-        <!-- ===== PANEL FORMULARIO ===== -->
-        <Border Grid.Column="1" Background="White" CornerRadius="12"
-                Margin="0,20,24,20" Padding="20"
-                Visibility="{Binding MostrarFormulario, Converter={StaticResource BoolToVisibilityConverter}}">
-            <Border.Effect>
-                <DropShadowEffect BlurRadius="10" ShadowDepth="0" Color="#000" Opacity="0.07"/>
-            </Border.Effect>
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <StackPanel>
-                    <TextBlock Text="{Binding EsEdicion, Converter={StaticResource BoolToLoadingTextConverter},
-                                       ConverterParameter=Editar Usuario|Nuevo Usuario}"
-                               FontSize="16" FontWeight="SemiBold" Foreground="#1E3A5F"
-                               Margin="0,0,0,20"/>
+        <!-- ===== MODAL OVERLAY ===== -->
+        <Grid Background="#B2000000"
+              Visibility="{Binding MostrarFormulario, Converter={StaticResource BoolToVisibilityConverter}}">
 
-                    <TextBlock Text="Nombre de usuario *" FontSize="12" FontWeight="SemiBold"
-                               Foreground="#374151" Margin="0,0,0,4"/>
-                    <TextBox Text="{Binding FormNombreUsuario, UpdateSourceTrigger=PropertyChanged}"
-                             Style="{StaticResource InputStyle}"
-                             IsEnabled="{Binding EsEdicion, Converter={StaticResource InverseBoolConverter}}"
-                             Margin="0,0,0,12"/>
+            <Border MaxWidth="480" MaxHeight="620"
+                    HorizontalAlignment="Center" VerticalAlignment="Center"
+                    Background="White" CornerRadius="16"
+                    Margin="32">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="32" ShadowDepth="0" Opacity="0.30"/>
+                </Border.Effect>
 
-                    <TextBlock Text="Nombre completo *" FontSize="12" FontWeight="SemiBold"
-                               Foreground="#374151" Margin="0,0,0,4"/>
-                    <TextBox Text="{Binding FormNombreCompleto, UpdateSourceTrigger=PropertyChanged}"
-                             Style="{StaticResource InputStyle}" Margin="0,0,0,12"/>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
-                    <TextBlock Text="Email" FontSize="12" FontWeight="SemiBold"
-                               Foreground="#374151" Margin="0,0,0,4"/>
-                    <TextBox Text="{Binding FormEmail, UpdateSourceTrigger=PropertyChanged}"
-                             Style="{StaticResource InputStyle}" Margin="0,0,0,12"/>
-
-                    <TextBlock Text="Teléfono" FontSize="12" FontWeight="SemiBold"
-                               Foreground="#374151" Margin="0,0,0,4"/>
-                    <TextBox Text="{Binding FormTelefono, UpdateSourceTrigger=PropertyChanged}"
-                             Style="{StaticResource InputStyle}" Margin="0,0,0,12"/>
-
-                    <TextBlock Text="Rol" FontSize="12" FontWeight="SemiBold"
-                               Foreground="#374151" Margin="0,0,0,4"/>
-                    <ComboBox SelectedValue="{Binding FormRolId}"
-                              SelectedValuePath="Tag"
-                              Style="{StaticResource InputComboStyle}" Margin="0,0,0,12">
-                        <ComboBoxItem Content="Administrador" Tag="1"/>
-                        <ComboBoxItem Content="Operador"      Tag="2"/>
-                        <ComboBoxItem Content="Consulta"      Tag="3"/>
-                    </ComboBox>
-
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
-                        <TextBlock Text="Contraseña" FontSize="12" FontWeight="SemiBold" Foreground="#374151"/>
-                        <TextBlock Text=" (dejar vacío para no cambiar)" FontSize="12" Foreground="#9CA3AF"
-                                   Visibility="{Binding EsEdicion, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                    </StackPanel>
-                    <PasswordBox x:Name="PbContrasena"
-                                 Style="{StaticResource PasswordStyle}"
-                                 PasswordChanged="PbContrasena_PasswordChanged"
-                                 Margin="0,0,0,20"/>
-
-                    <TextBlock Text="{Binding MensajeError}" Foreground="#EF4444" FontSize="12"
-                               Margin="0,0,0,8"
-                               Visibility="{Binding MensajeError, Converter={StaticResource NullToVisibilityConverter}}"/>
-
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="8"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Button Grid.Column="0" Content="Cancelar"
-                                Style="{StaticResource DangerButtonStyle}"
+                    <!-- Cabecera del modal -->
+                    <Grid Grid.Row="0" Margin="24,20,16,0">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Width="4" Height="20" Background="#F59E0B" CornerRadius="2" Margin="0,0,10,0"/>
+                            <TextBlock Text="{Binding EsEdicion,
+                                               Converter={StaticResource BoolToLoadingTextConverter},
+                                               ConverterParameter=Editar Usuario|Nuevo Usuario}"
+                                       FontSize="17" FontWeight="Bold" Foreground="#1E3A5F"/>
+                        </StackPanel>
+                        <Button HorizontalAlignment="Right" VerticalAlignment="Center"
+                                Content="✕" Width="32" Height="32"
+                                Background="#F9FAFB" BorderBrush="#E5E7EB" BorderThickness="1"
+                                FontSize="13" Foreground="#6B7280" CornerRadius="8"
+                                Cursor="Hand"
                                 Command="{Binding CancelarFormularioCommand}"/>
-                        <Button Grid.Column="2" Content="Guardar"
-                                Style="{StaticResource PrimaryButtonStyle}"
-                                Command="{Binding GuardarUsuarioCommand}"/>
                     </Grid>
-                </StackPanel>
-            </ScrollViewer>
-        </Border>
+                    <Separator Grid.Row="0" VerticalAlignment="Bottom" Background="#F3F4F6" Margin="0,60,0,0"/>
+
+                    <!-- Campos del formulario -->
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                        <StackPanel Margin="24,16,24,4">
+
+                            <TextBlock Text="Nombre de usuario *" FontSize="12" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,4"/>
+                            <TextBox Text="{Binding FormNombreUsuario, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource InputStyle}"
+                                     IsEnabled="{Binding EsEdicion, Converter={StaticResource InverseBoolConverter}}"
+                                     Margin="0,0,0,12"/>
+
+                            <TextBlock Text="Nombre completo *" FontSize="12" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,4"/>
+                            <TextBox Text="{Binding FormNombreCompleto, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource InputStyle}" Margin="0,0,0,12"/>
+
+                            <Grid Margin="0,0,0,12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="12"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Email" FontSize="12" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,4"/>
+                                    <TextBox Text="{Binding FormEmail, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource InputStyle}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Teléfono" FontSize="12" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,4"/>
+                                    <TextBox Text="{Binding FormTelefono, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource InputStyle}"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <TextBlock Text="Rol" FontSize="12" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,4"/>
+                            <ComboBox SelectedValue="{Binding FormRolId}"
+                                      SelectedValuePath="Tag"
+                                      Style="{StaticResource InputComboStyle}" Margin="0,0,0,12">
+                                <ComboBoxItem Content="Administrador" Tag="1"/>
+                                <ComboBoxItem Content="Operador"      Tag="2"/>
+                                <ComboBoxItem Content="Consulta"      Tag="3"/>
+                            </ComboBox>
+
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                <TextBlock Text="Contraseña" FontSize="12" FontWeight="SemiBold" Foreground="#374151"/>
+                                <TextBlock Text=" (dejar vacío para no cambiar)" FontSize="12" Foreground="#9CA3AF"
+                                           Visibility="{Binding EsEdicion, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                            </StackPanel>
+                            <PasswordBox x:Name="PbContrasena"
+                                         Style="{StaticResource PasswordStyle}"
+                                         PasswordChanged="PbContrasena_PasswordChanged"
+                                         Margin="0,0,0,8"/>
+
+                            <Border Background="#FEF2F2" CornerRadius="8" Padding="12,8" Margin="0,0,0,4"
+                                    Visibility="{Binding MensajeError, Converter={StaticResource NullToVisibilityConverter}}">
+                                <TextBlock Text="{Binding MensajeError}" Foreground="#EF4444" FontSize="12" TextWrapping="Wrap"/>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <!-- Botones footer -->
+                    <Border Grid.Row="2" BorderBrush="#F3F4F6" BorderThickness="0,1,0,0" Padding="24,14">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Button Grid.Column="0" Content="Cancelar"
+                                    Style="{StaticResource DangerButtonStyle}"
+                                    Command="{Binding CancelarFormularioCommand}"/>
+                            <Button Grid.Column="2" Content="Guardar"
+                                    Style="{StaticResource PrimaryButtonStyle}"
+                                    Command="{Binding GuardarUsuarioCommand}"/>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Border>
+        </Grid>
     </Grid>
 </UserControl>
