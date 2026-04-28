@@ -2,79 +2,92 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <Grid Margin="24,20">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolVis"/>
+    </UserControl.Resources>
+
+    <Grid Background="#F0F2F5">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- KPIs -->
-        <Grid Grid.Row="0" Margin="0,0,0,16">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="16"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Border Grid.Column="0" Background="White" CornerRadius="10" Padding="16,14">
-                <StackPanel>
-                    <TextBlock Text="⏳" FontSize="22" Margin="0,0,0,4"/>
-                    <TextBlock Text="{Binding TotalPendiente, StringFormat=\${0:N2}}"
-                               FontSize="22" FontWeight="Bold" Foreground="#F59E0B"/>
-                    <TextBlock Text="Total pendiente de pago" FontSize="11" Foreground="#6B7280"/>
-                </StackPanel>
-            </Border>
-            <Border Grid.Column="2" Background="White" CornerRadius="10" Padding="16,14">
-                <StackPanel>
-                    <TextBlock Text="🚨" FontSize="22" Margin="0,0,0,4"/>
-                    <TextBlock Text="{Binding CantidadVencidas}"
-                               FontSize="24" FontWeight="Bold" Foreground="#EF4444"/>
-                    <TextBlock Text="Facturas vencidas (+30 días)" FontSize="11" Foreground="#6B7280"/>
-                </StackPanel>
-            </Border>
-        </Grid>
+        <!-- ===== BARRA SUPERIOR ===== -->
+        <Border Grid.Row="0" Background="White" Padding="20,14"
+                BorderBrush="#E5E7EB" BorderThickness="0,0,0,1">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBox Grid.Column="0"
+                         Text="{Binding Filtro, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource InputStyle}"
+                         Tag="🔍 Buscar por número de factura o cliente..."
+                         Height="36" Margin="0,0,16,0"/>
+                <ComboBox Grid.Column="1"
+                          SelectedItem="{Binding FiltroEstado}"
+                          Style="{StaticResource InputComboStyle}"
+                          Width="160" Height="36">
+                    <ComboBoxItem Content="TODOS"/>
+                    <ComboBoxItem Content="EMITIDA"/>
+                    <ComboBoxItem Content="CRÉDITO"/>
+                    <ComboBoxItem Content="PAGADA"/>
+                    <ComboBoxItem Content="ANULADA"/>
+                </ComboBox>
+            </Grid>
+        </Border>
 
-        <!-- Filtros -->
-        <Grid Grid.Row="1" Margin="0,0,0,12">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="12"/>
-                <ColumnDefinition Width="160"/>
-            </Grid.ColumnDefinitions>
-            <TextBox Grid.Column="0"
-                     Text="{Binding Filtro, UpdateSourceTrigger=PropertyChanged}"
-                     Style="{StaticResource InputStyle}"
-                     Tag="🔍 Buscar por número de factura o cliente..."/>
-            <ComboBox Grid.Column="2"
-                      SelectedItem="{Binding FiltroEstado}"
-                      Style="{StaticResource InputComboStyle}">
-                <ComboBoxItem Content="TODOS"/>
-                <ComboBoxItem Content="EMITIDA"/>
-                <ComboBoxItem Content="CRÉDITO"/>
-                <ComboBoxItem Content="PAGADA"/>
-                <ComboBoxItem Content="ANULADA"/>
-            </ComboBox>
-        </Grid>
+        <!-- ===== CONTENIDO PRINCIPAL ===== -->
+        <Grid Grid.Row="1" Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
 
-        <!-- Mensajes -->
-        <TextBlock Grid.Row="2" Text="{Binding MensajeError}"
-                   Foreground="#EF4444" FontSize="12" Margin="0,0,0,8"
-                   Visibility="{Binding MensajeError, Converter={StaticResource NullToVisibilityConverter}}"/>
-        <TextBlock Grid.Row="3" Text="{Binding MensajeExito}"
-                   Foreground="#10B981" FontSize="12" Margin="0,0,0,8"
-                   Visibility="{Binding MensajeExito, Converter={StaticResource NullToVisibilityConverter}}"/>
+            <!-- KPIs -->
+            <Grid Grid.Row="0" Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0" Background="White" CornerRadius="10" Padding="16,14">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="6" ShadowDepth="0" Color="#000" Opacity="0.05"/>
+                    </Border.Effect>
+                    <StackPanel>
+                        <TextBlock Text="⏳" FontSize="22" Margin="0,0,0,4"/>
+                        <TextBlock Text="{Binding TotalPendiente, StringFormat=\${0:N2}}"
+                                   FontSize="22" FontWeight="Bold" Foreground="#F59E0B"/>
+                        <TextBlock Text="Total pendiente de pago" FontSize="11" Foreground="#6B7280"/>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="2" Background="White" CornerRadius="10" Padding="16,14">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="6" ShadowDepth="0" Color="#000" Opacity="0.05"/>
+                    </Border.Effect>
+                    <StackPanel>
+                        <TextBlock Text="🚨" FontSize="22" Margin="0,0,0,4"/>
+                        <TextBlock Text="{Binding CantidadVencidas}"
+                                   FontSize="24" FontWeight="Bold" Foreground="#EF4444"/>
+                        <TextBlock Text="Facturas vencidas (+30 días)" FontSize="11" Foreground="#6B7280"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
 
-        <!-- Layout: tabla + panel pago -->
-        <Grid Grid.Row="4">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="{Binding MostrarPago, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=300}"/>
-            </Grid.ColumnDefinitions>
+            <!-- Mensajes -->
+            <TextBlock Grid.Row="1" Text="{Binding MensajeError}"
+                       Foreground="#EF4444" FontSize="12" Margin="0,0,0,8"
+                       Visibility="{Binding MensajeError, Converter={StaticResource NullToVisibilityConverter}}"/>
+            <TextBlock Grid.Row="2" Text="{Binding MensajeExito}"
+                       Foreground="#10B981" FontSize="12" Margin="0,0,0,8"
+                       Visibility="{Binding MensajeExito, Converter={StaticResource NullToVisibilityConverter}}"/>
 
-            <!-- DataGrid facturas -->
-            <Border Grid.Column="0" Background="White" CornerRadius="12" Margin="0,0,12,0">
+            <!-- Tabla full-width -->
+            <Border Grid.Row="3" Background="White" CornerRadius="12">
                 <Border.Effect>
                     <DropShadowEffect BlurRadius="8" ShadowDepth="0" Color="#000" Opacity="0.05"/>
                 </Border.Effect>
@@ -83,64 +96,315 @@
                           Style="{StaticResource ModernDataGridStyle}"
                           IsReadOnly="True">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="N° Factura"   Binding="{Binding NumeroFactura}"                              Width="140"/>
-                        <DataGridTextColumn Header="Fecha"        Binding="{Binding FechaEmision, StringFormat=dd/MM/yyyy}"      Width="100"/>
-                        <DataGridTextColumn Header="Vencimiento"  Binding="{Binding FechaVencimiento, StringFormat=dd/MM/yyyy}"  Width="110"/>
-                        <DataGridTextColumn Header="Cliente"      Binding="{Binding ClienteNombre}"                             Width="*"/>
-                        <DataGridTextColumn Header="Total"        Binding="{Binding TotalFactura, StringFormat=\${0:N2}}"        Width="110"/>
-                        <DataGridTextColumn Header="Pendiente"    Binding="{Binding MontoPendiente, StringFormat=\${0:N2}}"      Width="110"/>
-                        <DataGridTextColumn Header="Estado"       Binding="{Binding Estado}"                                    Width="90"/>
-                        <DataGridTemplateColumn Header="Acciones" Width="90">
+                        <DataGridTextColumn Header="N° Factura"  Binding="{Binding NumeroFactura}"                             Width="140"/>
+                        <DataGridTextColumn Header="Fecha"       Binding="{Binding FechaEmision, StringFormat=dd/MM/yyyy}"     Width="95"/>
+                        <DataGridTextColumn Header="Vencimiento" Binding="{Binding FechaVencimiento, StringFormat=dd/MM/yyyy}" Width="105"/>
+                        <DataGridTextColumn Header="Cliente"     Binding="{Binding ClienteNombre}"                            Width="*"/>
+                        <DataGridTextColumn Header="Total"       Binding="{Binding TotalFactura, StringFormat=\${0:N2}}"       Width="105"/>
+                        <DataGridTextColumn Header="Pendiente"   Binding="{Binding MontoPendiente, StringFormat=\${0:N2}}"     Width="105"/>
+                        <DataGridTextColumn Header="Estado"      Binding="{Binding Estado}"                                   Width="85"/>
+                        <DataGridTemplateColumn Header="Acciones" Width="185">
+                            <DataGridTemplateColumn.CellStyle>
+                                <Style TargetType="DataGridCell">
+                                    <Setter Property="Padding" Value="4,2"/>
+                                    <Setter Property="BorderThickness" Value="0"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="DataGridCell">
+                                                <Border Padding="{TemplateBinding Padding}"
+                                                        Background="{TemplateBinding Background}">
+                                                    <ContentPresenter VerticalAlignment="Center"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter Property="Background" Value="#EFF6FF"/>
+                                            <Setter Property="Foreground" Value="#1E3A5F"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </DataGridTemplateColumn.CellStyle>
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Button Content="Pagar" Height="28" Width="78" Margin="4,2"
-                                            Style="{StaticResource PrimaryButtonStyle}" FontSize="11"
-                                            Command="{Binding DataContext.RegistrarPagoCommand,
-                                                      RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                            CommandParameter="{Binding}"/>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button Height="28" Width="82" Margin="0,0,6,0"
+                                                Style="{StaticResource SuccessButtonStyle}" FontSize="11"
+                                                Command="{Binding DataContext.VerFacturaCommand,
+                                                          RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                CommandParameter="{Binding}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="👁" FontSize="11" Margin="0,0,4,0" VerticalAlignment="Center"/>
+                                                <TextBlock Text="Ver" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Button>
+                                        <Button Height="28" Width="88"
+                                                Style="{StaticResource PrimaryButtonStyle}" FontSize="11"
+                                                Command="{Binding DataContext.RegistrarPagoCommand,
+                                                          RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                CommandParameter="{Binding}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="💰" FontSize="11" Margin="0,0,4,0" VerticalAlignment="Center"/>
+                                                <TextBlock Text="Pagar" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Button>
+                                    </StackPanel>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
                     </DataGrid.Columns>
                 </DataGrid>
             </Border>
+        </Grid>
 
-            <!-- Panel pago -->
-            <Border Grid.Column="1" Background="White" CornerRadius="12" Padding="20"
-                    Visibility="{Binding MostrarPago, Converter={StaticResource BoolToVisibilityConverter}}">
+        <!-- ===== MODAL VER DETALLE ===== -->
+        <Grid Grid.RowSpan="2" Background="#B2000000"
+              Visibility="{Binding MostrarDetalle, Converter={StaticResource BoolVis}}">
+
+            <Border MaxWidth="480" MaxHeight="560"
+                    HorizontalAlignment="Center" VerticalAlignment="Center"
+                    Background="White" CornerRadius="16" Margin="32">
                 <Border.Effect>
-                    <DropShadowEffect BlurRadius="10" ShadowDepth="0" Color="#000" Opacity="0.07"/>
+                    <DropShadowEffect BlurRadius="32" ShadowDepth="0" Opacity="0.30"/>
                 </Border.Effect>
-                <StackPanel>
-                    <TextBlock Text="Registrar Pago" FontSize="15" FontWeight="SemiBold"
-                               Foreground="#1E3A5F" Margin="0,0,0,4"/>
-                    <TextBlock Text="{Binding FacturaSeleccionada.NumeroFactura}"
-                               FontSize="13" Foreground="#E8A020" FontWeight="SemiBold"
-                               Margin="0,0,0,4"/>
-                    <TextBlock Text="{Binding FacturaSeleccionada.ClienteNombre}"
-                               FontSize="12" Foreground="#6B7280" Margin="0,0,0,20"/>
 
-                    <TextBlock Text="Total factura:" FontSize="12" Foreground="#374151"/>
-                    <TextBlock Text="{Binding FacturaSeleccionada.TotalFactura, StringFormat=\${0:N2}}"
-                               FontSize="20" FontWeight="Bold" Foreground="#1E3A5F" Margin="0,2,0,8"/>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
-                    <TextBlock Text="Pendiente:" FontSize="12" Foreground="#374151"/>
-                    <TextBlock Text="{Binding FacturaSeleccionada.MontoPendiente, StringFormat=\${0:N2}}"
-                               FontSize="18" FontWeight="Bold" Foreground="#EF4444" Margin="0,2,0,20"/>
+                    <!-- Cabecera -->
+                    <Grid Grid.Row="0" Margin="24,20,16,0">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Width="4" Height="20" Background="#059669" CornerRadius="2" Margin="0,0,10,0"/>
+                            <TextBlock Text="Detalle de Factura" FontSize="17" FontWeight="Bold" Foreground="#1E3A5F"/>
+                        </StackPanel>
+                        <Button HorizontalAlignment="Right" VerticalAlignment="Center"
+                                Content="✕" Width="32" Height="32"
+                                Background="#F9FAFB" BorderBrush="#E5E7EB" BorderThickness="1"
+                                FontSize="13" Foreground="#6B7280" Cursor="Hand"
+                                Command="{Binding CerrarDetalleCommand}"/>
+                    </Grid>
+                    <Separator Grid.Row="0" VerticalAlignment="Bottom" Background="#F3F4F6" Margin="0,60,0,0"/>
 
-                    <TextBlock Text="Monto recibido ($)" FontSize="12" FontWeight="SemiBold"
-                               Foreground="#374151" Margin="0,0,0,4"/>
-                    <TextBox Text="{Binding MontoRecibido, UpdateSourceTrigger=PropertyChanged}"
-                             Style="{StaticResource InputStyle}" Margin="0,0,0,20"/>
+                    <!-- Contenido detalle -->
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                        <StackPanel Margin="24,20,24,4">
 
-                    <Button Content="Confirmar Pago"
-                            Style="{StaticResource PrimaryButtonStyle}"
-                            Command="{Binding ConfirmarPagoCommand}"
-                            Margin="0,0,0,8"/>
-                    <Button Content="Cancelar"
-                            Style="{StaticResource DangerButtonStyle}"
-                            Command="{Binding CancelarPagoCommand}"/>
-                </StackPanel>
+                            <!-- Badge estado -->
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                                <Border CornerRadius="6" Padding="10,4"
+                                        Background="{Binding FacturaSeleccionada.Estado,
+                                                     Converter={StaticResource EstadoColorConverter}}">
+                                    <TextBlock Text="{Binding FacturaSeleccionada.Estado}"
+                                               FontSize="12" FontWeight="SemiBold" Foreground="White"/>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- Número y venta -->
+                            <Grid Margin="0,0,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="12"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="N° Factura" FontSize="11" Foreground="#9CA3AF"/>
+                                    <TextBlock Text="{Binding FacturaSeleccionada.NumeroFactura}"
+                                               FontSize="14" FontWeight="SemiBold" Foreground="#1E3A5F"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="N° Venta" FontSize="11" Foreground="#9CA3AF"/>
+                                    <TextBlock Text="{Binding FacturaSeleccionada.NumeroVenta}"
+                                               FontSize="14" FontWeight="SemiBold" Foreground="#1E3A5F"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- Cliente -->
+                            <StackPanel Margin="0,0,0,10">
+                                <TextBlock Text="Cliente" FontSize="11" Foreground="#9CA3AF"/>
+                                <TextBlock Text="{Binding FacturaSeleccionada.ClienteNombre}"
+                                           FontSize="14" FontWeight="SemiBold" Foreground="#374151" TextWrapping="Wrap"/>
+                            </StackPanel>
+
+                            <!-- Fechas -->
+                            <Grid Margin="0,0,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="12"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Fecha emisión" FontSize="11" Foreground="#9CA3AF"/>
+                                    <TextBlock Text="{Binding FacturaSeleccionada.FechaEmision, StringFormat=dd/MM/yyyy}"
+                                               FontSize="13" Foreground="#374151"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Vencimiento" FontSize="11" Foreground="#9CA3AF"/>
+                                    <TextBlock Text="{Binding FacturaSeleccionada.FechaVencimiento, StringFormat=dd/MM/yyyy}"
+                                               FontSize="13" Foreground="#374151"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <Separator Background="#F3F4F6" Margin="0,8,0,12"/>
+
+                            <!-- Totales -->
+                            <Grid Margin="0,0,0,8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Subtotal" FontSize="13" Foreground="#6B7280"/>
+                                <TextBlock Grid.Column="1" Text="{Binding FacturaSeleccionada.SubtotalFactura, StringFormat=\${0:N2}}"
+                                           FontSize="13" Foreground="#374151"/>
+                            </Grid>
+                            <Grid Margin="0,0,0,8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="IVA" FontSize="13" Foreground="#6B7280"/>
+                                <TextBlock Grid.Column="1" Text="{Binding FacturaSeleccionada.IVAFactura, StringFormat=\${0:N2}}"
+                                           FontSize="13" Foreground="#374151"/>
+                            </Grid>
+                            <Separator Background="#F3F4F6" Margin="0,4,0,8"/>
+                            <Grid Margin="0,0,0,8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Total factura" FontSize="14" FontWeight="Bold" Foreground="#1E3A5F"/>
+                                <TextBlock Grid.Column="1" Text="{Binding FacturaSeleccionada.TotalFactura, StringFormat=\${0:N2}}"
+                                           FontSize="14" FontWeight="Bold" Foreground="#1E3A5F"/>
+                            </Grid>
+                            <Grid Margin="0,0,0,8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Pagado" FontSize="13" Foreground="#059669"/>
+                                <TextBlock Grid.Column="1" Text="{Binding FacturaSeleccionada.MontoPagado, StringFormat=\${0:N2}}"
+                                           FontSize="13" Foreground="#059669"/>
+                            </Grid>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Pendiente" FontSize="13" FontWeight="SemiBold" Foreground="#EF4444"/>
+                                <TextBlock Grid.Column="1" Text="{Binding FacturaSeleccionada.MontoPendiente, StringFormat=\${0:N2}}"
+                                           FontSize="13" FontWeight="SemiBold" Foreground="#EF4444"/>
+                            </Grid>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <!-- Footer -->
+                    <Border Grid.Row="2" BorderBrush="#F3F4F6" BorderThickness="0,1,0,0" Padding="24,14">
+                        <Button Content="Cerrar" Height="36"
+                                Command="{Binding CerrarDetalleCommand}"
+                                Style="{StaticResource SecondaryButtonStyle}"/>
+                    </Border>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- ===== MODAL REGISTRAR PAGO ===== -->
+        <Grid Grid.RowSpan="2" Background="#B2000000"
+              Visibility="{Binding MostrarPago, Converter={StaticResource BoolVis}}">
+
+            <Border MaxWidth="400" MaxHeight="480"
+                    HorizontalAlignment="Center" VerticalAlignment="Center"
+                    Background="White" CornerRadius="16" Margin="32">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="32" ShadowDepth="0" Opacity="0.30"/>
+                </Border.Effect>
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Cabecera -->
+                    <Grid Grid.Row="0" Margin="24,20,16,0">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Width="4" Height="20" Background="#F59E0B" CornerRadius="2" Margin="0,0,10,0"/>
+                            <TextBlock Text="Registrar Pago" FontSize="17" FontWeight="Bold" Foreground="#1E3A5F"/>
+                        </StackPanel>
+                        <Button HorizontalAlignment="Right" VerticalAlignment="Center"
+                                Content="✕" Width="32" Height="32"
+                                Background="#F9FAFB" BorderBrush="#E5E7EB" BorderThickness="1"
+                                FontSize="13" Foreground="#6B7280" Cursor="Hand"
+                                Command="{Binding CancelarPagoCommand}"/>
+                    </Grid>
+                    <Separator Grid.Row="0" VerticalAlignment="Bottom" Background="#F3F4F6" Margin="0,60,0,0"/>
+
+                    <!-- Campos pago -->
+                    <StackPanel Grid.Row="1" Margin="24,20,24,4">
+
+                        <!-- Info factura -->
+                        <Border Background="#FFF9F0" CornerRadius="8" Padding="12,10" Margin="0,0,0,16">
+                            <StackPanel>
+                                <TextBlock Text="{Binding FacturaSeleccionada.NumeroFactura}"
+                                           FontSize="15" FontWeight="SemiBold" Foreground="#E8A020"/>
+                                <TextBlock Text="{Binding FacturaSeleccionada.ClienteNombre}"
+                                           FontSize="12" Foreground="#6B7280" Margin="0,2,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Error -->
+                        <Border Background="#FEF2F2" CornerRadius="8" Padding="12,8" Margin="0,0,0,12"
+                                Visibility="{Binding MensajeError, Converter={StaticResource NullToVisibilityConverter}}">
+                            <TextBlock Text="{Binding MensajeError}" Foreground="#EF4444" FontSize="12" TextWrapping="Wrap"/>
+                        </Border>
+
+                        <!-- Totales -->
+                        <Grid Margin="0,0,0,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Total factura:" FontSize="12" Foreground="#6B7280" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Text="{Binding FacturaSeleccionada.TotalFactura, StringFormat=\${0:N2}}"
+                                       FontSize="16" FontWeight="Bold" Foreground="#1E3A5F"/>
+                        </Grid>
+                        <Grid Margin="0,0,0,16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Pendiente:" FontSize="12" Foreground="#6B7280" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Text="{Binding FacturaSeleccionada.MontoPendiente, StringFormat=\${0:N2}}"
+                                       FontSize="16" FontWeight="Bold" Foreground="#EF4444"/>
+                        </Grid>
+
+                        <TextBlock Text="Monto recibido ($)" FontSize="12" FontWeight="SemiBold"
+                                   Foreground="#374151" Margin="0,0,0,4"/>
+                        <TextBox Text="{Binding MontoRecibido, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource InputStyle}"/>
+                    </StackPanel>
+
+                    <!-- Footer botones -->
+                    <Border Grid.Row="2" BorderBrush="#F3F4F6" BorderThickness="0,1,0,0" Padding="24,14">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Button Grid.Column="0" Content="Cancelar"
+                                    Command="{Binding CancelarPagoCommand}"
+                                    Style="{StaticResource SecondaryButtonStyle}" Height="36"/>
+                            <Button Grid.Column="2" Content="Confirmar Pago"
+                                    Command="{Binding ConfirmarPagoCommand}"
+                                    Style="{StaticResource PrimaryButtonStyle}" Height="36"/>
+                        </Grid>
+                    </Border>
+                </Grid>
             </Border>
         </Grid>
     </Grid>

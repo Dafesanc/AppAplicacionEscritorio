@@ -170,7 +170,7 @@
                                       Style="{StaticResource InputComboStyle}" Margin="0,0,0,12">
                                 <ComboBoxItem Content="Administrador" Tag="1"/>
                                 <ComboBoxItem Content="Operador"      Tag="2"/>
-                                <ComboBoxItem Content="Consulta"      Tag="3"/>
+                                <ComboBoxItem Content="Supervisor"      Tag="3"/>
                             </ComboBox>
 
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,4">

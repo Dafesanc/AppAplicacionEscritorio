@@ -24,6 +24,9 @@ public partial class FacturasViewModel : ObservableObject
     [ObservableProperty] private bool _mostrarPago;
     [ObservableProperty] private decimal _montoRecibido;
 
+    // Modal detalle
+    [ObservableProperty] private bool _mostrarDetalle;
+
     private List<FacturaDTO> _todasLasFacturas = new();
 
     public FacturasViewModel(IFacturaService facturaService)
@@ -112,4 +115,15 @@ public partial class FacturasViewModel : ObservableObject
 
     [RelayCommand]
     private void CancelarPago() => MostrarPago = false;
+
+    [RelayCommand]
+    private void VerFactura(FacturaDTO? factura)
+    {
+        if (factura == null) return;
+        FacturaSeleccionada = factura;
+        MostrarDetalle = true;
+    }
+
+    [RelayCommand]
+    private void CerrarDetalle() => MostrarDetalle = false;
 }
