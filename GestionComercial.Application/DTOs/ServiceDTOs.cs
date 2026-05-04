@@ -71,7 +71,10 @@ public class CrearVentaManualDTO
 {
     public int IdCliente { get; set; }
     public int? IdVehiculo { get; set; }
+    public int? IdProducto { get; set; }
     public decimal? PesoNetoKg { get; set; }
+    public decimal? PesoTaraKg { get; set; }
+    public decimal Cantidad { get; set; }
     public decimal Total { get; set; }
     public decimal Descuento { get; set; }
     public string TipoDocumento { get; set; } = "TICKET";

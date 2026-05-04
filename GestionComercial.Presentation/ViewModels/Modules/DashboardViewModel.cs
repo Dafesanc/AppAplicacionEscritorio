@@ -51,18 +51,10 @@ public partial class DashboardViewModel : ObservableObject
             var hoy    = DateTime.Today;
             var manana = hoy.AddDays(1);
 
-            // Lanzar todas las consultas en paralelo
-            var tVentas   = _ventaService.ObtenerPorFechaAsync(hoy, manana);
-            var tClientes = _clienteService.ObtenerActivosAsync();
-            var tStock    = _inventarioService.ObtenerStockBajoAsync();
-            var tPesajes  = _pesajeService.ObtenerPorFechaAsync(hoy, manana);
-
-            await Task.WhenAll(tVentas, tClientes, tStock, tPesajes);
-
-            var ventas  = tVentas.Result.ToList();
-            var clientes = tClientes.Result.ToList();
-            var stock   = tStock.Result.ToList();
-            var pesajes = tPesajes.Result.ToList();
+            var ventas   = (await _ventaService.ObtenerPorFechaAsync(hoy, manana)).ToList();
+            var clientes = (await _clienteService.ObtenerActivosAsync()).ToList();
+            var stock    = (await _inventarioService.ObtenerStockBajoAsync()).ToList();
+            var pesajes  = (await _pesajeService.ObtenerPorFechaAsync(hoy, manana)).ToList();
 
             TotalVentasHoy       = ventas.Count;
             MontoVentasHoy       = ventas.Sum(v => v.TotalVenta);

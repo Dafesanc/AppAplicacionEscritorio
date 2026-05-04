@@ -59,12 +59,8 @@ public partial class VehiculosViewModel : ObservableObject
         MensajeError = null;
         try
         {
-            var tVehiculos = _vehiculoService.ObtenerActivosAsync();
-            var tClientes  = _clienteService.ObtenerActivosAsync();
-            await Task.WhenAll(tVehiculos, tClientes);
-
-            _vehiculosTodos = tVehiculos.Result.ToList();
-            Clientes = new ObservableCollection<ClienteDTO>(tClientes.Result);
+            _vehiculosTodos = (await _vehiculoService.ObtenerActivosAsync()).ToList();
+            Clientes        = new ObservableCollection<ClienteDTO>(await _clienteService.ObtenerActivosAsync());
             AplicarFiltros();
         }
         catch

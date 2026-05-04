@@ -140,7 +140,7 @@
         <Grid Background="#B2000000"
               Visibility="{Binding MostrarFormulario, Converter={StaticResource BoolToVisibilityConverter}}">
 
-            <Border MaxWidth="500" MaxHeight="580"
+            <Border MaxWidth="520"
                     HorizontalAlignment="Center" VerticalAlignment="Center"
                     Background="White" CornerRadius="16"
                     Margin="32">
@@ -171,7 +171,7 @@
                     <Separator Grid.Row="0" VerticalAlignment="Bottom" Background="#F3F4F6" Margin="0,60,0,0"/>
 
                     <!-- Campos -->
-                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" MaxHeight="560">
                         <StackPanel Margin="24,16,24,4">
 
                             <!-- Error en modal -->
@@ -198,7 +198,41 @@
                                       Style="{StaticResource InputComboStyle}"
                                       Margin="0,0,0,12"/>
 
-                            <!-- Peso Neto / Tipo Documento -->
+                            <!-- Producto -->
+                            <TextBlock Text="Producto *" FontSize="12" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,4"/>
+                            <ComboBox ItemsSource="{Binding FormProductos}"
+                                      DisplayMemberPath="Nombre"
+                                      SelectedValuePath="IdProducto"
+                                      SelectedValue="{Binding FormIdProducto}"
+                                      Style="{StaticResource InputComboStyle}"
+                                      Margin="0,0,0,12"/>
+
+                            <!-- Descuento por defecto / Peso Tara Vehículo -->
+                            <Grid Margin="0,0,0,12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="12"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Descuento cliente (%)" FontSize="12" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,4"/>
+                                    <TextBox Text="{Binding FormDescuentoPct}"
+                                             Style="{StaticResource InputStyle}"
+                                             IsReadOnly="True"
+                                             Background="#F3F4F6"
+                                             Foreground="#6B7280"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Peso Tara Vehículo" FontSize="12" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,4"/>
+                                    <TextBox Text="{Binding FormPesoTaraVehiculo}"
+                                             Style="{StaticResource InputStyle}"
+                                             IsReadOnly="True"
+                                             Background="#F3F4F6"
+                                             Foreground="#6B7280"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- Peso Neto / Unidad de Medida -->
                             <Grid Margin="0,0,0,12">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
@@ -211,14 +245,21 @@
                                              Style="{StaticResource InputStyle}"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="2">
-                                    <TextBlock Text="Tipo Documento" FontSize="12" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,4"/>
-                                    <ComboBox ItemsSource="{Binding TiposDocumento}"
-                                              SelectedItem="{Binding FormTipoDocumento}"
+                                    <TextBlock Text="Unidad de Medida" FontSize="12" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,4"/>
+                                    <ComboBox ItemsSource="{Binding UnidadesMedida}"
+                                              SelectedItem="{Binding FormUnidadMedida}"
                                               Style="{StaticResource InputComboStyle}"/>
                                 </StackPanel>
                             </Grid>
 
-                            <!-- Total / Descuento -->
+                            <!-- Tipo Documento -->
+                            <TextBlock Text="Tipo Documento" FontSize="12" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,4"/>
+                            <ComboBox ItemsSource="{Binding TiposDocumento}"
+                                      SelectedItem="{Binding FormTipoDocumento}"
+                                      Style="{StaticResource InputComboStyle}"
+                                      Margin="0,0,0,12"/>
+
+                            <!-- Total / Descuento ($) -->
                             <Grid Margin="0,0,0,8">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>

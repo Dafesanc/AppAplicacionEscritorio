@@ -9,50 +9,70 @@ namespace GestionComercial.Presentation.ViewModels.Modules;
 
 public partial class VentasViewModel : ObservableObject
 {
-    private readonly IVentaService    _ventaService;
-    private readonly IClienteService  _clienteService;
-    private readonly IVehiculoService _vehiculoService;
-    private readonly SessionService   _sessionService;
+    private readonly IVentaService      _ventaService;
+    private readonly IClienteService    _clienteService;
+    private readonly IVehiculoService   _vehiculoService;
+    private readonly IInventarioService _inventarioService;
+    private readonly SessionService     _sessionService;
 
+    // ── Lista principal ──────────────────────────────────────────────────────
     [ObservableProperty] private ObservableCollection<VentaDTO> _ventas = new();
     [ObservableProperty] private VentaDTO? _ventaSeleccionada;
-    [ObservableProperty] private bool  _estaCargando;
-    [ObservableProperty] private string? _mensajeError;
-    [ObservableProperty] private string? _mensajeExito;
-    [ObservableProperty] private DateTime _filtroDesde = DateTime.Today.AddDays(-30);
-    [ObservableProperty] private DateTime _filtroHasta = DateTime.Today;
-    [ObservableProperty] private string   _filtroCliente = string.Empty;
-    [ObservableProperty] private string   _filtroEstado  = "TODOS";
-    [ObservableProperty] private decimal  _totalMostrado;
-    [ObservableProperty] private int      _cantidadMostrada;
+    [ObservableProperty] private bool      _estaCargando;
+    [ObservableProperty] private string?   _mensajeError;
+    [ObservableProperty] private string?   _mensajeExito;
+    [ObservableProperty] private DateTime  _filtroDesde = DateTime.Today.AddDays(-30);
+    [ObservableProperty] private DateTime  _filtroHasta = DateTime.Today;
+    [ObservableProperty] private string    _filtroCliente = string.Empty;
+    [ObservableProperty] private string    _filtroEstado  = "TODOS";
+    [ObservableProperty] private decimal   _totalMostrado;
+    [ObservableProperty] private int       _cantidadMostrada;
 
-    // --- Formulario nueva venta ---
+    // ── Formulario nueva venta ───────────────────────────────────────────────
     [ObservableProperty] private bool _mostrarFormulario;
-    [ObservableProperty] private ObservableCollection<ClienteDTO>  _formClientes  = new();
-    [ObservableProperty] private ObservableCollection<VehiculoDTO> _formVehiculos = new();
+
+    // Fuentes de datos para combos
+    [ObservableProperty] private ObservableCollection<ClienteDTO>   _formClientes   = new();
+    [ObservableProperty] private ObservableCollection<VehiculoDTO>  _formVehiculos  = new();
+    [ObservableProperty] private ObservableCollection<ProductoDTO>  _formProductos  = new();
+
+    // Selecciones del usuario
     [ObservableProperty] private int    _formIdCliente;
     [ObservableProperty] private int    _formIdVehiculo;
+    [ObservableProperty] private int    _formIdProducto;
+
+    // Campos derivados (read-only en la UI)
+    [ObservableProperty] private string _formDescuentoPct      = "0.00 %";
+    [ObservableProperty] private string _formPesoTaraVehiculo  = string.Empty;
+
+    // Campos editables
+    [ObservableProperty] private string _formUnidadMedida  = "Kg";
     [ObservableProperty] private string _formPesoNeto      = string.Empty;
     [ObservableProperty] private string _formTotal         = string.Empty;
     [ObservableProperty] private string _formDescuento     = "0";
     [ObservableProperty] private string _formTipoDocumento = "TICKET";
 
-    public string[] EstadosFiltro  { get; } = { "TODOS", "BORRADOR", "COMPLETADA", "ANULADA" };
-    public string[] TiposDocumento { get; } = { "TICKET", "FACTURA" };
+    public string[] EstadosFiltro  { get; } = ["TODOS", "BORRADOR", "COMPLETADA", "ANULADA"];
+    public string[] TiposDocumento { get; } = ["TICKET", "FACTURA"];
+    public string[] UnidadesMedida { get; } = ["Kg", "Unidad"];
 
-    private List<VentaDTO> _todasLasVentas = new();
+    private List<VentaDTO> _todasLasVentas = [];
 
     public VentasViewModel(
-        IVentaService    ventaService,
-        IClienteService  clienteService,
-        IVehiculoService vehiculoService,
-        SessionService   sessionService)
+        IVentaService      ventaService,
+        IClienteService    clienteService,
+        IVehiculoService   vehiculoService,
+        IInventarioService inventarioService,
+        SessionService     sessionService)
     {
-        _ventaService    = ventaService;
-        _clienteService  = clienteService;
-        _vehiculoService = vehiculoService;
-        _sessionService  = sessionService;
+        _ventaService      = ventaService;
+        _clienteService    = clienteService;
+        _vehiculoService   = vehiculoService;
+        _inventarioService = inventarioService;
+        _sessionService    = sessionService;
     }
+
+    // ── Filtros ──────────────────────────────────────────────────────────────
 
     [RelayCommand]
     public async Task CargarAsync()
@@ -98,6 +118,8 @@ public partial class VentasViewModel : ObservableObject
     [RelayCommand]
     private async Task BuscarAsync() => await CargarAsync();
 
+    // ── Completar venta ──────────────────────────────────────────────────────
+
     [RelayCommand]
     private async Task CompletarVentaAsync(VentaDTO? venta)
     {
@@ -109,7 +131,7 @@ public partial class VentasViewModel : ObservableObject
             var ok = await _ventaService.MarkupSaleComplete(venta.IdVenta);
             if (ok)
             {
-                MensajeExito = "Venta completada.";
+                MensajeExito = "Venta completada y stock actualizado.";
                 await CargarAsync();
             }
             else
@@ -121,20 +143,21 @@ public partial class VentasViewModel : ObservableObject
         finally { EstaCargando = false; }
     }
 
+    // ── Nueva venta ──────────────────────────────────────────────────────────
+
     [RelayCommand]
     private async Task NuevaVentaAsync()
     {
-        MensajeError  = null;
-        MensajeExito  = null;
+        MensajeError = null;
+        MensajeExito = null;
         LimpiarFormulario();
         EstaCargando = true;
         try
         {
-            var tClientes  = _clienteService.ObtenerActivosAsync();
-            var tVehiculos = _vehiculoService.ObtenerActivosAsync();
-            await Task.WhenAll(tClientes, tVehiculos);
-            FormClientes  = new ObservableCollection<ClienteDTO>(tClientes.Result);
-            FormVehiculos = new ObservableCollection<VehiculoDTO>(tVehiculos.Result);
+            // Secuencial: el DbContext es singleton en WPF; operaciones paralelas
+            // sobre el mismo contexto lanzan InvalidOperationException.
+            FormClientes  = new ObservableCollection<ClienteDTO>(await _clienteService.ObtenerActivosAsync());
+            FormProductos = new ObservableCollection<ProductoDTO>(await _inventarioService.ObtenerActivosAsync());
         }
         catch
         {
@@ -146,6 +169,52 @@ public partial class VentasViewModel : ObservableObject
         }
         MostrarFormulario = true;
     }
+
+    // ── Handlers reactivos del formulario ────────────────────────────────────
+
+    partial void OnFormIdClienteChanged(int value)
+    {
+        _ = CargarVehiculosYDescuentoAsync(value);
+    }
+
+    private async Task CargarVehiculosYDescuentoAsync(int idCliente)
+    {
+        FormIdVehiculo       = 0;
+        FormVehiculos        = new ObservableCollection<VehiculoDTO>();
+        FormPesoTaraVehiculo = string.Empty;
+        FormDescuentoPct     = "0.00 %";
+
+        if (idCliente <= 0) return;
+
+        try
+        {
+            var vehiculos = await _vehiculoService.ObtenerPorClienteAsync(idCliente);
+            FormVehiculos = new ObservableCollection<VehiculoDTO>(vehiculos);
+
+            var cliente = FormClientes.FirstOrDefault(c => c.IdCliente == idCliente);
+            if (cliente != null)
+                FormDescuentoPct = $"{cliente.DescuentoPorDefecto:N2} %";
+        }
+        catch { /* no interrumpir la UI */ }
+    }
+
+    partial void OnFormIdVehiculoChanged(int value)
+    {
+        var vehiculo = FormVehiculos.FirstOrDefault(v => v.IdVehiculo == value);
+        FormPesoTaraVehiculo = vehiculo?.PesoTaraKg.HasValue == true
+            ? $"{vehiculo.PesoTaraKg.Value:N2} kg"
+            : string.Empty;
+    }
+
+    partial void OnFormIdProductoChanged(int value)
+    {
+        var producto = FormProductos.FirstOrDefault(p => p.IdProducto == value);
+        if (producto == null) return;
+
+        FormUnidadMedida = producto.Unidad is "Kg" or "Tonelada" ? "Kg" : "Unidad";
+    }
+
+    // ── Guardar ──────────────────────────────────────────────────────────────
 
     [RelayCommand]
     private void CancelarFormulario()
@@ -174,21 +243,28 @@ public partial class VentasViewModel : ObservableObject
 
         decimal.TryParse(FormDescuento, System.Globalization.NumberStyles.Any,
             System.Globalization.CultureInfo.CurrentCulture, out var descuento);
+
         decimal? pesoNeto = decimal.TryParse(FormPesoNeto, System.Globalization.NumberStyles.Any,
             System.Globalization.CultureInfo.CurrentCulture, out var pn) ? pn : null;
+
+        var vehiculo = FormVehiculos.FirstOrDefault(v => v.IdVehiculo == FormIdVehiculo);
+        decimal? pesoTara = vehiculo?.PesoTaraKg;
 
         EstaCargando = true;
         try
         {
             var dto = new CrearVentaManualDTO
             {
-                IdCliente      = FormIdCliente,
-                IdVehiculo     = FormIdVehiculo > 0 ? FormIdVehiculo : null,
-                PesoNetoKg     = pesoNeto,
-                Total          = total,
-                Descuento      = descuento,
-                TipoDocumento  = FormTipoDocumento,
-                UsuarioId      = _sessionService.UsuarioActual?.ID_Usuario ?? 0
+                IdCliente     = FormIdCliente,
+                IdVehiculo    = FormIdVehiculo > 0 ? FormIdVehiculo : null,
+                IdProducto    = FormIdProducto > 0 ? FormIdProducto : null,
+                PesoNetoKg    = pesoNeto,
+                PesoTaraKg    = pesoTara,
+                Cantidad      = pesoNeto ?? 0,
+                Total         = total,
+                Descuento     = descuento,
+                TipoDocumento = FormTipoDocumento,
+                UsuarioId     = _sessionService.UsuarioActual?.ID_Usuario ?? 0
             };
 
             var id = await _ventaService.CrearManualAsync(dto);
@@ -215,11 +291,17 @@ public partial class VentasViewModel : ObservableObject
 
     private void LimpiarFormulario()
     {
-        FormIdCliente      = 0;
-        FormIdVehiculo     = 0;
-        FormPesoNeto       = string.Empty;
-        FormTotal          = string.Empty;
-        FormDescuento      = "0";
-        FormTipoDocumento  = "TICKET";
+        FormIdCliente        = 0;
+        FormIdVehiculo       = 0;
+        FormIdProducto       = 0;
+        FormVehiculos        = new ObservableCollection<VehiculoDTO>();
+        FormProductos        = new ObservableCollection<ProductoDTO>();
+        FormDescuentoPct     = "0.00 %";
+        FormPesoTaraVehiculo = string.Empty;
+        FormUnidadMedida     = "Kg";
+        FormPesoNeto         = string.Empty;
+        FormTotal            = string.Empty;
+        FormDescuento        = "0";
+        FormTipoDocumento    = "TICKET";
     }
 }

@@ -5,23 +5,23 @@ using GestionComercial.Application.Interfaces;
 using GestionComercial.Domain.Entities;
 using Microsoft.Extensions.Logging;
 
-/// <summary>
-/// Servicio para gestión de Ventas
-/// </summary>
 public class VentaService : IVentaService
 {
-    private readonly IRepository<Venta> _ventaRepository;
-    private readonly IClienteRepository _clienteRepository;
-    private readonly ILogger<VentaService> _logger;
+    private readonly IRepository<Venta>        _ventaRepository;
+    private readonly IRepository<DetalleVenta> _detalleRepository;
+    private readonly IInventarioService        _inventarioService;
+    private readonly ILogger<VentaService>     _logger;
 
     public VentaService(
-        IRepository<Venta> ventaRepository,
-        IClienteRepository clienteRepository,
-        ILogger<VentaService> logger)
+        IRepository<Venta>        ventaRepository,
+        IRepository<DetalleVenta> detalleRepository,
+        IInventarioService        inventarioService,
+        ILogger<VentaService>     logger)
     {
-        _ventaRepository = ventaRepository;
-        _clienteRepository = clienteRepository;
-        _logger = logger;
+        _ventaRepository   = ventaRepository;
+        _detalleRepository = detalleRepository;
+        _inventarioService = inventarioService;
+        _logger            = logger;
     }
 
     public async Task<VentaDTO?> ObtenerPorIdAsync(int idVenta)
@@ -43,7 +43,7 @@ public class VentaService : IVentaService
         try
         {
             var ventas = await _ventaRepository.ObtenerTodosAsync();
-            var venta = ventas.FirstOrDefault(v => v.NumeroVenta == numeroVenta);
+            var venta  = ventas.FirstOrDefault(v => v.NumeroVenta == numeroVenta);
             return venta == null ? null : MapearDTO(venta);
         }
         catch (Exception ex)
@@ -93,19 +93,17 @@ public class VentaService : IVentaService
         {
             var venta = new Venta
             {
-                NumeroVenta = $"VENTA-{DateTime.Now:yyyyMMddHHmmss}",
-                ID_Cliente = ventaDTO.IdCliente,
-                ID_Vehiculo = ventaDTO.IdVehiculo > 0 ? ventaDTO.IdVehiculo : null,
-                ID_PesajeTara = ventaDTO.IdPesajeTara > 0 ? ventaDTO.IdPesajeTara : null,
-                ID_PesajeBruto = ventaDTO.IdPesajeBruto > 0 ? ventaDTO.IdPesajeBruto : null,
-                TipoDocumento = ventaDTO.TipoDocumento,
-                EstadoVenta = "BORRADOR",
-                UsuarioVenta = 0, // TODO: obtener del contexto de sesión del usuario autenticado
-                FechaVenta = DateTime.Now,
+                NumeroVenta       = $"VENTA-{DateTime.Now:yyyyMMddHHmmss}",
+                ID_Cliente        = ventaDTO.IdCliente,
+                ID_Vehiculo       = ventaDTO.IdVehiculo > 0 ? ventaDTO.IdVehiculo : null,
+                ID_PesajeTara     = ventaDTO.IdPesajeTara > 0 ? ventaDTO.IdPesajeTara : null,
+                ID_PesajeBruto    = ventaDTO.IdPesajeBruto > 0 ? ventaDTO.IdPesajeBruto : null,
+                TipoDocumento     = ventaDTO.TipoDocumento,
+                EstadoVenta       = "BORRADOR",
+                UsuarioVenta      = 0,
+                FechaVenta        = DateTime.Now,
                 FechaModificacion = DateTime.Now
             };
-
-            // TODO: Calcular Subtotal, IVA y TotalVenta desde ventaDTO.Detalles
 
             await _ventaRepository.AgregarAsync(venta);
             _logger.LogInformation("Venta creada: {NumeroVenta}", venta.NumeroVenta);
@@ -125,21 +123,43 @@ public class VentaService : IVentaService
             var totalFinal = Math.Max(0, dto.Total - dto.Descuento);
             var venta = new Venta
             {
-                NumeroVenta      = $"VENTA-{DateTime.Now:yyyyMMddHHmmss}",
-                ID_Cliente       = dto.IdCliente,
-                ID_Vehiculo      = dto.IdVehiculo is > 0 ? dto.IdVehiculo : null,
-                PesoNetoKg       = dto.PesoNetoKg,
-                Subtotal         = dto.Total,
+                NumeroVenta         = $"VENTA-{DateTime.Now:yyyyMMddHHmmss}",
+                ID_Cliente          = dto.IdCliente,
+                ID_Vehiculo         = dto.IdVehiculo is > 0 ? dto.IdVehiculo : null,
+                PesoTaraKg          = dto.PesoTaraKg,
+                PesoNetoKg          = dto.PesoNetoKg,
+                Subtotal            = dto.Total,
                 DescuentosAplicados = dto.Descuento,
-                IVA              = 0,
-                TotalVenta       = totalFinal,
-                TipoDocumento    = dto.TipoDocumento,
-                EstadoVenta      = "BORRADOR",
-                UsuarioVenta     = dto.UsuarioId,
-                FechaVenta       = DateTime.Now,
-                FechaModificacion = DateTime.Now
+                IVA                 = 0,
+                TotalVenta          = totalFinal,
+                TipoDocumento       = dto.TipoDocumento,
+                EstadoVenta         = "BORRADOR",
+                UsuarioVenta        = dto.UsuarioId,
+                FechaVenta          = DateTime.Now,
+                FechaModificacion   = DateTime.Now
             };
             await _ventaRepository.AgregarAsync(venta);
+
+            if (dto.IdProducto is > 0)
+            {
+                var producto = await _inventarioService.ObtenerPorIdAsync(dto.IdProducto.Value);
+                if (producto != null)
+                {
+                    var cantidad = dto.Cantidad > 0 ? dto.Cantidad : dto.PesoNetoKg ?? 0;
+                    var descuentoLinea = dto.Total > 0 ? dto.Descuento / dto.Total * 100 : 0;
+                    var detalle = new DetalleVenta
+                    {
+                        ID_Venta       = venta.ID_Venta,
+                        ID_Producto    = dto.IdProducto.Value,
+                        Cantidad       = cantidad,
+                        PrecioUnitario = producto.PrecioBase,
+                        DescuentoLinea = descuentoLinea
+                    };
+                    detalle.CalcularSubtotal();
+                    await _detalleRepository.AgregarAsync(detalle);
+                }
+            }
+
             _logger.LogInformation("Venta manual creada: {NumeroVenta}", venta.NumeroVenta);
             return venta.ID_Venta;
         }
@@ -157,11 +177,21 @@ public class VentaService : IVentaService
             var venta = await _ventaRepository.ObtenerPorIdAsync(idVenta);
             if (venta == null) return false;
 
-            venta.EstadoVenta = "COMPLETADA";
+            venta.EstadoVenta      = "COMPLETADA";
             venta.FechaModificacion = DateTime.Now;
-
             await _ventaRepository.ActualizarAsync(venta);
-            _logger.LogInformation("Venta marcada como completada: {Id}", idVenta);
+
+            var detalles = await _detalleRepository.ObtenerConFiltroAsync(d => d.ID_Venta == idVenta);
+            foreach (var detalle in detalles)
+            {
+                await _inventarioService.ActualizarStockAsync(
+                    detalle.ID_Producto,
+                    detalle.Cantidad,
+                    "SALIDA",
+                    venta.NumeroVenta);
+            }
+
+            _logger.LogInformation("Venta completada y stock actualizado: {Id}", idVenta);
             return true;
         }
         catch (Exception ex)
@@ -185,26 +215,23 @@ public class VentaService : IVentaService
         }
     }
 
-    private static VentaDTO MapearDTO(Venta venta)
+    private static VentaDTO MapearDTO(Venta venta) => new()
     {
-        return new VentaDTO
-        {
-            IdVenta = venta.ID_Venta,
-            NumeroVenta = venta.NumeroVenta,
-            IdCliente = venta.ID_Cliente,
-            ClienteNombre = venta.Cliente?.Nombre ?? "Desconocido",
-            IdVehiculo = venta.ID_Vehiculo,
-            VehiculoPlaca = venta.Vehiculo?.Placa,
-            PesoTaraKg = venta.PesoTaraKg ?? 0,
-            PesoBrutoKg = venta.PesoBrutoKg ?? 0,
-            PesoNetoKg = venta.PesoNetoKg ?? 0,
-            Subtotal = venta.Subtotal,
-            DescuentosAplicados = venta.DescuentosAplicados,
-            IVA = venta.IVA,
-            TotalVenta = venta.TotalVenta,
-            TipoDocumento = venta.TipoDocumento,
-            Estado = venta.EstadoVenta,
-            FechaVenta = venta.FechaVenta
-        };
-    }
+        IdVenta             = venta.ID_Venta,
+        NumeroVenta         = venta.NumeroVenta,
+        IdCliente           = venta.ID_Cliente,
+        ClienteNombre       = venta.Cliente?.Nombre ?? "Desconocido",
+        IdVehiculo          = venta.ID_Vehiculo,
+        VehiculoPlaca       = venta.Vehiculo?.Placa,
+        PesoTaraKg          = venta.PesoTaraKg ?? 0,
+        PesoBrutoKg         = venta.PesoBrutoKg ?? 0,
+        PesoNetoKg          = venta.PesoNetoKg ?? 0,
+        Subtotal            = venta.Subtotal,
+        DescuentosAplicados = venta.DescuentosAplicados,
+        IVA                 = venta.IVA,
+        TotalVenta          = venta.TotalVenta,
+        TipoDocumento       = venta.TipoDocumento,
+        Estado              = venta.EstadoVenta,
+        FechaVenta          = venta.FechaVenta
+    };
 }
