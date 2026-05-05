@@ -49,7 +49,6 @@ public partial class VentasViewModel : ObservableObject
     [ObservableProperty] private string _formUnidadMedida  = "Kg";
     [ObservableProperty] private string _formPesoNeto      = string.Empty;
     [ObservableProperty] private string _formTotal         = string.Empty;
-    [ObservableProperty] private string _formDescuento     = "0";
     [ObservableProperty] private string _formTipoDocumento = "TICKET";
 
     public string[] EstadosFiltro  { get; } = ["TODOS", "BORRADOR", "COMPLETADA", "ANULADA"];
@@ -234,6 +233,7 @@ public partial class VentasViewModel : ObservableObject
             MensajeError = "Debe seleccionar un cliente.";
             return;
         }
+        //AQUI SUPONGO QUE DEBERIA COMENZAR  A INCLUIR LOS CAMBIOS PARA OBTENER DESCUENTO
         if (!decimal.TryParse(FormTotal, System.Globalization.NumberStyles.Any,
                 System.Globalization.CultureInfo.CurrentCulture, out var total) || total <= 0)
         {
@@ -241,8 +241,8 @@ public partial class VentasViewModel : ObservableObject
             return;
         }
 
-        decimal.TryParse(FormDescuento, System.Globalization.NumberStyles.Any,
-            System.Globalization.CultureInfo.CurrentCulture, out var descuento);
+        var cliente = FormClientes.FirstOrDefault(c => c.IdCliente == FormIdCliente);
+        var descuento = cliente?.DescuentoPorDefecto ?? 0;
 
         decimal? pesoNeto = decimal.TryParse(FormPesoNeto, System.Globalization.NumberStyles.Any,
             System.Globalization.CultureInfo.CurrentCulture, out var pn) ? pn : null;
@@ -301,7 +301,6 @@ public partial class VentasViewModel : ObservableObject
         FormUnidadMedida     = "Kg";
         FormPesoNeto         = string.Empty;
         FormTotal            = string.Empty;
-        FormDescuento        = "0";
         FormTipoDocumento    = "TICKET";
     }
 }

@@ -275,6 +275,10 @@ public class GestionComercialContext : DbContext
                 .WithMany()
                 .HasForeignKey(e => e.UsuarioVenta)
                 .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(e => e.Producto)
+                .WithMany()
+                .HasForeignKey(e => e.ID_Producto)
+                .OnDelete(DeleteBehavior.SetNull);
         });
 
         // Configuración de DetalleVenta

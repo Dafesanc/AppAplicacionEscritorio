@@ -259,24 +259,11 @@
                                       Style="{StaticResource InputComboStyle}"
                                       Margin="0,0,0,12"/>
 
-                            <!-- Total / Descuento ($) -->
-                            <Grid Margin="0,0,0,8">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="12"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0">
-                                    <TextBlock Text="Total ($) *" FontSize="12" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,4"/>
-                                    <TextBox Text="{Binding FormTotal, UpdateSourceTrigger=PropertyChanged}"
-                                             Style="{StaticResource InputStyle}"/>
-                                </StackPanel>
-                                <StackPanel Grid.Column="2">
-                                    <TextBlock Text="Descuento ($)" FontSize="12" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,4"/>
-                                    <TextBox Text="{Binding FormDescuento, UpdateSourceTrigger=PropertyChanged}"
-                                             Style="{StaticResource InputStyle}"/>
-                                </StackPanel>
-                            </Grid>
+                            <!-- Total -->
+                            <TextBlock Text="Total ($) *" FontSize="12" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,4"/>
+                            <TextBox Text="{Binding FormTotal, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource InputStyle}"
+                                     Margin="0,0,0,8"/>
 
                         </StackPanel>
                     </ScrollViewer>

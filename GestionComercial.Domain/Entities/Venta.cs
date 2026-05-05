@@ -23,6 +23,7 @@ public class Venta
     public int UsuarioVenta { get; set; }
     public DateTime FechaVenta { get; set; }
     public DateTime FechaModificacion { get; set; }
+    public int? ID_Producto { get; set; } // Para ventas manuales sin pesaje
 
     // Relaciones
     public Cliente Cliente { get; set; } = null!;
@@ -32,6 +33,8 @@ public class Venta
     public Usuario Usuario { get; set; } = null!;
     public ICollection<DetalleVenta> Detalles { get; set; } = new List<DetalleVenta>();
     public Factura? Factura { get; set; }
+    //Ultima Relacion
+    public Producto? Producto { get; set; }
 
     /// <summary>
     /// Verifica si la venta está completada

@@ -120,7 +120,12 @@ public class VentaService : IVentaService
     {
         try
         {
-            var totalFinal = Math.Max(0, dto.Total - dto.Descuento);
+            var porcentajeDescuento = dto.Descuento > 0 ? dto.Descuento : 0;
+            var valorDescuento = dto.Total * (porcentajeDescuento / 100);
+            var totalFinal = Math.Max(0, dto.Total - valorDescuento);
+
+            decimal Iva = totalFinal > 0 ? totalFinal * 0.05m : 0;
+
             var venta = new Venta
             {
                 NumeroVenta         = $"VENTA-{DateTime.Now:yyyyMMddHHmmss}",
@@ -129,14 +134,15 @@ public class VentaService : IVentaService
                 PesoTaraKg          = dto.PesoTaraKg,
                 PesoNetoKg          = dto.PesoNetoKg,
                 Subtotal            = dto.Total,
-                DescuentosAplicados = dto.Descuento,
-                IVA                 = 0,
-                TotalVenta          = totalFinal,
+                DescuentosAplicados = valorDescuento,
+                IVA                 = Iva,
+                TotalVenta          = (totalFinal + Iva),
                 TipoDocumento       = dto.TipoDocumento,
                 EstadoVenta         = "BORRADOR",
                 UsuarioVenta        = dto.UsuarioId,
                 FechaVenta          = DateTime.Now,
-                FechaModificacion   = DateTime.Now
+                FechaModificacion   = DateTime.Now,
+                ID_Producto = dto.IdProducto is > 0 ? dto.IdProducto : null // Cuando se crea una Venta Manual
             };
             await _ventaRepository.AgregarAsync(venta);
 
@@ -146,7 +152,7 @@ public class VentaService : IVentaService
                 if (producto != null)
                 {
                     var cantidad = dto.Cantidad > 0 ? dto.Cantidad : dto.PesoNetoKg ?? 0;
-                    var descuentoLinea = dto.Total > 0 ? dto.Descuento / dto.Total * 100 : 0;
+                    var descuentoLinea = porcentajeDescuento;
                     var detalle = new DetalleVenta
                     {
                         ID_Venta       = venta.ID_Venta,
