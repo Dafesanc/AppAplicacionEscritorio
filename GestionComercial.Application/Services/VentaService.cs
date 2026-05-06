@@ -159,7 +159,8 @@ public class VentaService : IVentaService
                         ID_Producto    = dto.IdProducto.Value,
                         Cantidad       = cantidad,
                         PrecioUnitario = producto.PrecioBase,
-                        DescuentoLinea = descuentoLinea
+                        DescuentoLinea = descuentoLinea,
+                        ValorDescuento = (producto.PrecioBase * cantidad) * (descuentoLinea / 100)
                     };
                     detalle.CalcularSubtotal();
                     await _detalleRepository.AgregarAsync(detalle);

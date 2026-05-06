@@ -270,7 +270,10 @@ public partial class VentasViewModel : ObservableObject
             var id = await _ventaService.CrearManualAsync(dto);
             if (id != null)
             {
-                MensajeExito      = "Venta registrada correctamente.";
+                var completada = await _ventaService.MarkupSaleComplete(id.Value);
+                MensajeExito      = completada
+                    ? "Venta completada y stock actualizado correctamente."
+                    : "Venta registrada pero no se pudo actualizar el stock.";
                 MostrarFormulario = false;
                 await CargarAsync();
             }

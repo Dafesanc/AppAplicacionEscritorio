@@ -284,6 +284,7 @@ public class GestionComercialContext : DbContext
         // Configuración de DetalleVenta
         modelBuilder.Entity<DetalleVenta>(entity =>
         {
+            entity.ToTable("Detalle_Ventas");
             entity.HasKey(e => e.ID_DetalleVenta);
             entity.Property(e => e.Cantidad)
                 .HasPrecision(15, 2);
@@ -342,6 +343,7 @@ public class GestionComercialContext : DbContext
         // Configuración de MovimientoInventario
         modelBuilder.Entity<MovimientoInventario>(entity =>
         {
+            entity.ToTable("Movimientos_Inventario");
             entity.HasKey(e => e.ID_Movimiento);
             entity.Property(e => e.TipoMovimiento)
                 .IsRequired()
@@ -369,6 +371,7 @@ public class GestionComercialContext : DbContext
         // Configuración de LoteInventario
         modelBuilder.Entity<LoteInventario>(entity =>
         {
+            entity.ToTable("Lotes_Inventario");
             entity.HasKey(e => e.ID_Lote);
             entity.Property(e => e.NumeroLote)
                 .IsRequired()
@@ -393,6 +396,7 @@ public class GestionComercialContext : DbContext
         // Configuración de Auditoria
         modelBuilder.Entity<Auditoria>(entity =>
         {
+            entity.ToTable("Auditoria");
             entity.HasKey(e => e.ID_Auditoria);
             entity.Property(e => e.Tabla)
                 .IsRequired()
