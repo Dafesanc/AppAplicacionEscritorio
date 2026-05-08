@@ -24,6 +24,7 @@ public partial class ShellViewModel : ObservableObject
     [ObservableProperty] private bool _facturasSeleccionado;
     [ObservableProperty] private bool _usuariosSeleccionado;
     [ObservableProperty] private bool _vehiculosSeleccionado;
+    [ObservableProperty] private bool _esAdministrador;
 
     public event Action? SolicitudCerrarSesion;
 
@@ -36,8 +37,9 @@ public partial class ShellViewModel : ObservableObject
     public void Inicializar(LoginResponseDTO usuario)
     {
         _session.IniciarSesion(usuario);
-        UsuarioNombre = usuario.NombreCompleto;
-        UsuarioRol = usuario.RolNombre;
+        UsuarioNombre    = usuario.NombreCompleto;
+        UsuarioRol       = usuario.RolNombre;
+        EsAdministrador  = usuario.RolNombre == "Administrador";
         IrDashboard();
     }
 

@@ -211,6 +211,24 @@ public class CrearActualizarVehiculoDTO
 }
 
 /// <summary>
+/// DTO para crear un nuevo Producto con lote inicial
+/// </summary>
+public class CrearProductoDTO
+{
+    public string Codigo { get; set; } = string.Empty;
+    public string Nombre { get; set; } = string.Empty;
+    public string TipoMaterial { get; set; } = string.Empty;
+    public string Unidad { get; set; } = string.Empty;
+    public decimal PrecioBase { get; set; }
+    public decimal StockInicial { get; set; }
+    public decimal StockMinimo { get; set; }
+    public decimal StockMaximo { get; set; }
+    public string? Descripcion { get; set; }
+    public string? Proveedor { get; set; }
+    public int UsuarioId { get; set; }
+}
+
+/// <summary>
 /// DTO para Factura
 /// </summary>
 public class FacturaDTO

@@ -43,6 +43,7 @@ public interface IInventarioService
     Task<IEnumerable<ProductoDTO>> ObtenerActivosAsync();
     Task<bool> ActualizarStockAsync(int idProducto, decimal cantidad, string tipo, string referencia);
     Task<bool> AjustarStockAsync(int idProducto, decimal cantidadAjuste, string razon);
+    Task<int?> CrearProductoAsync(CrearProductoDTO dto);
     Task<decimal> ObtenerValorInventarioTotalAsync();
     Task<IEnumerable<MovimientoInventarioDTO>> ObtenerMovimientosAsync(int idProducto, int? diasAtras = null);
 }

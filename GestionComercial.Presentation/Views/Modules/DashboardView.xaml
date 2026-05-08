@@ -229,7 +229,9 @@
                 </Border>
 
                 <Border Background="White" CornerRadius="10" Padding="16,14"
-                        Margin="0,0,12,12" Cursor="Hand" Width="180">
+                        Margin="0,0,12,12" Cursor="Hand" Width="180"
+                        Visibility="{Binding EsAdministrador,
+                            Converter={StaticResource BoolToVisibilityConverter}}">
                     <Border.InputBindings>
                         <MouseBinding MouseAction="LeftClick"
                                       Command="{Binding NavegacionAccionCommand}"

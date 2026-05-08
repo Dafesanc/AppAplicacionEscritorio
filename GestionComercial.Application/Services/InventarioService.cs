@@ -7,18 +7,21 @@ using Microsoft.Extensions.Logging;
 
 public class InventarioService : IInventarioService
 {
-    private readonly IRepository<Producto> _productoRepository;
+    private readonly IRepository<Producto>            _productoRepository;
     private readonly IRepository<MovimientoInventario> _movimientoRepository;
-    private readonly ILogger<InventarioService> _logger;
+    private readonly IRepository<LoteInventario>       _loteRepository;
+    private readonly ILogger<InventarioService>        _logger;
 
     public InventarioService(
-        IRepository<Producto> productoRepository,
+        IRepository<Producto>            productoRepository,
         IRepository<MovimientoInventario> movimientoRepository,
-        ILogger<InventarioService> logger)
+        IRepository<LoteInventario>       loteRepository,
+        ILogger<InventarioService>        logger)
     {
-        _productoRepository = productoRepository;
+        _productoRepository   = productoRepository;
         _movimientoRepository = movimientoRepository;
-        _logger = logger;
+        _loteRepository       = loteRepository;
+        _logger               = logger;
     }
 
     public async Task<ProductoDTO?> ObtenerPorIdAsync(int idProducto)
@@ -79,13 +82,13 @@ public class InventarioService : IInventarioService
 
             var movimiento = new MovimientoInventario
             {
-                ID_Producto = idProducto,
-                TipoMovimiento = tipo,
-                Cantidad = cantidad,
-                StockAnterior = stockAnterior,
-                StockPosterior = producto.Stock,
-                Referencia = referencia,
-                FechaMovimiento = DateTime.Now,
+                ID_Producto       = idProducto,
+                TipoMovimiento    = tipo,
+                Cantidad          = cantidad,
+                StockAnterior     = stockAnterior,
+                StockPosterior    = producto.Stock,
+                Referencia        = referencia,
+                FechaMovimiento   = DateTime.Now,
                 UsuarioMovimiento = 0
             };
             await _movimientoRepository.AgregarAsync(movimiento);
@@ -102,8 +105,56 @@ public class InventarioService : IInventarioService
 
     public async Task<bool> AjustarStockAsync(int idProducto, decimal cantidadAjuste, string razon)
     {
-        var tipo = cantidadAjuste >= 0 ? "AJUSTE" : "AJUSTE";
+        var tipo = cantidadAjuste >= 0 ? "ENTRADA" : "SALIDA";
         return await ActualizarStockAsync(idProducto, Math.Abs(cantidadAjuste), tipo, razon);
+    }
+
+    public async Task<int?> CrearProductoAsync(CrearProductoDTO dto)
+    {
+        try
+        {
+            var producto = new Producto
+            {
+                Codigo            = dto.Codigo,
+                Nombre            = dto.Nombre,
+                TipoMaterial      = dto.TipoMaterial,
+                Unidad            = dto.Unidad,
+                PrecioBase        = dto.PrecioBase,
+                Stock             = 0,
+                StockMinimo       = dto.StockMinimo,
+                StockMaximo       = dto.StockMaximo,
+                Descripcion       = dto.Descripcion,
+                Estado            = "ACTIVO",
+                FechaRegistro     = DateTime.Now,
+                FechaModificacion = DateTime.Now,
+                UsuarioCreacion   = dto.UsuarioId > 0 ? dto.UsuarioId : null
+            };
+            await _productoRepository.AgregarAsync(producto);
+
+            if (dto.StockInicial > 0)
+            {
+                var lote = new LoteInventario
+                {
+                    ID_Producto          = producto.ID_Producto,
+                    NumeroLote           = $"LOTE-{dto.Codigo}-{DateTime.Now:yyyyMMddHHmm}",
+                    QuantidadRecibida    = dto.StockInicial,
+                    QuantidadDisponible  = dto.StockInicial,
+                    Estado               = "DISPONIBLE",
+                    Proveedor            = dto.Proveedor,
+                    FechaIngreso         = DateTime.Now
+                };
+                await _loteRepository.AgregarAsync(lote);
+                await ActualizarStockAsync(producto.ID_Producto, dto.StockInicial, "ENTRADA", "INGRESO INICIAL");
+            }
+
+            _logger.LogInformation("Producto creado: {Codigo}", dto.Codigo);
+            return producto.ID_Producto;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error en CrearProductoAsync");
+            return null;
+        }
     }
 
     public async Task<decimal> ObtenerValorInventarioTotalAsync()
@@ -135,13 +186,13 @@ public class InventarioService : IInventarioService
 
             return query.OrderByDescending(m => m.FechaMovimiento).Select(m => new MovimientoInventarioDTO
             {
-                IdMovimiento = m.ID_Movimiento,
-                IdProducto = m.ID_Producto,
-                Tipo = m.TipoMovimiento,
-                Cantidad = m.Cantidad,
-                StockAnterior = m.StockAnterior ?? 0,
+                IdMovimiento   = m.ID_Movimiento,
+                IdProducto     = m.ID_Producto,
+                Tipo           = m.TipoMovimiento,
+                Cantidad       = m.Cantidad,
+                StockAnterior  = m.StockAnterior ?? 0,
                 StockPosterior = m.StockPosterior ?? 0,
-                Referencia = m.Referencia,
+                Referencia     = m.Referencia,
                 FechaMovimiento = m.FechaMovimiento
             });
         }
@@ -154,15 +205,15 @@ public class InventarioService : IInventarioService
 
     private static ProductoDTO MapearDTO(Producto p) => new()
     {
-        IdProducto = p.ID_Producto,
-        Codigo = p.Codigo,
-        Nombre = p.Nombre,
+        IdProducto   = p.ID_Producto,
+        Codigo       = p.Codigo,
+        Nombre       = p.Nombre,
         TipoMaterial = p.TipoMaterial,
-        Unidad = p.Unidad,
-        PrecioBase = p.PrecioBase,
-        Stock = p.Stock,
-        StockMinimo = p.StockMinimo,
-        StockMaximo = p.StockMaximo,
-        Estado = p.Estado
+        Unidad       = p.Unidad,
+        PrecioBase   = p.PrecioBase,
+        Stock        = p.Stock,
+        StockMinimo  = p.StockMinimo,
+        StockMaximo  = p.StockMaximo,
+        Estado       = p.Estado
     };
 }

@@ -22,6 +22,8 @@ public partial class DashboardViewModel : ObservableObject
     [ObservableProperty] private bool   _estaCargando;
     [ObservableProperty] private string? _mensajeError;
 
+    public bool EsAdministrador => _session.UsuarioActual?.RolNombre == "Administrador";
+
     public event Action<string>? SolicitarNavegacion;
 
     [RelayCommand]

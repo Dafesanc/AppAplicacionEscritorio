@@ -120,7 +120,29 @@
                         <DataGridTextColumn Header="Total"     Binding="{Binding TotalVenta, StringFormat=\${0:N2}}"            Width="110"/>
                         <DataGridTextColumn Header="Doc."      Binding="{Binding TipoDocumento}"                                Width="80"/>
                         <DataGridTextColumn Header="Estado"    Binding="{Binding Estado}"                                      Width="100"/>
-                        <DataGridTemplateColumn Header="Acciones" Width="110">
+                        <DataGridTemplateColumn Header="Acciones" Width="175">
+                             <DataGridTemplateColumn.CellStyle>
+                                <Style TargetType="DataGridCell">
+                                    <Setter Property="Padding" Value="4,2"/>
+                                    <Setter Property="BorderThickness" Value="0"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="DataGridCell">
+                                                <Border Padding="{TemplateBinding Padding}"
+                                                        Background="{TemplateBinding Background}">
+                                                    <ContentPresenter VerticalAlignment="Center"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter Property="Background" Value="#EFF6FF"/>
+                                            <Setter Property="Foreground" Value="#1E3A5F"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </DataGridTemplateColumn.CellStyle>
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <Button Content="Completar" Height="28" Width="100" Margin="4,2"

@@ -140,7 +140,9 @@
                     <Button Tag="{Binding InventarioSeleccionado,
                                     Converter={StaticResource BoolToActiveTagConverter}}"
                             Style="{StaticResource NavButtonStyle}"
-                            Command="{Binding IrInventarioCommand}">
+                            Command="{Binding IrInventarioCommand}"
+                            Visibility="{Binding EsAdministrador,
+                                Converter={StaticResource BoolToVisibilityConverter}}">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="📦" Width="22" FontSize="15"/>
                             <TextBlock Text="Inventario" VerticalAlignment="Center"/>
