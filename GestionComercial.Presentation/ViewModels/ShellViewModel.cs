@@ -47,7 +47,30 @@ public partial class ShellViewModel : ObservableObject
         LimpiarSeleccion();
         DashboardSeleccionado = true;
         TituloModulo = "Dashboard";
-        CurrentViewModel = _services.GetRequiredService<DashboardViewModel>();
+        var vm = _services.GetRequiredService<DashboardViewModel>();
+        vm.SolicitarNavegacion += OnNavegacionDashboard;
+        CurrentViewModel = vm;
+    }
+
+    private void OnNavegacionDashboard(string ruta)
+    {
+        switch (ruta)
+        {
+            case "VentasNuevo":
+                IrVentas();
+                ((VentasViewModel)CurrentViewModel!).NuevaVentaCommand.Execute(null);
+                break;
+            case "Pesajes":
+                IrPesajes();
+                break;
+            case "ClientesNuevo":
+                IrClientes();
+                ((ClientesViewModel)CurrentViewModel!).NuevoClienteCommand.Execute(null);
+                break;
+            case "Inventario":
+                IrInventario();
+                break;
+        }
     }
 
     [RelayCommand]

@@ -22,6 +22,11 @@ public partial class DashboardViewModel : ObservableObject
     [ObservableProperty] private bool   _estaCargando;
     [ObservableProperty] private string? _mensajeError;
 
+    public event Action<string>? SolicitarNavegacion;
+
+    [RelayCommand]
+    private void NavegacionAccion(string ruta) => SolicitarNavegacion?.Invoke(ruta);
+
     public DashboardViewModel(
         IVentaService ventaService,
         IClienteService clienteService,

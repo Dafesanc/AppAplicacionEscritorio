@@ -156,19 +156,24 @@
                     </Grid.RowDefinitions>
 
                     <!-- Cabecera -->
-                    <Grid Grid.Row="0" Margin="24,20,16,0">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Grid Grid.Row="0" Margin="24,20,20,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                             <Border Width="4" Height="20" Background="#F59E0B" CornerRadius="2" Margin="0,0,10,0"/>
                             <TextBlock Text="Nueva Venta"
                                        FontSize="17" FontWeight="Bold" Foreground="#1E3A5F"/>
                         </StackPanel>
-                        <Button HorizontalAlignment="Right" VerticalAlignment="Center"
+                        <Button Grid.Column="1" VerticalAlignment="Center"
                                 Content="✕" Width="32" Height="32"
                                 Background="#F9FAFB" BorderBrush="#E5E7EB" BorderThickness="1"
                                 FontSize="13" Foreground="#6B7280" Cursor="Hand"
+                                Margin="12,0,0,0"
                                 Command="{Binding CancelarFormularioCommand}"/>
                     </Grid>
-                    <Separator Grid.Row="0" VerticalAlignment="Bottom" Background="#F3F4F6" Margin="0,60,0,0"/>
+                    <Separator Grid.Row="0" VerticalAlignment="Bottom" Background="#F3F4F6" Margin="0,64,0,0"/>
 
                     <!-- Campos -->
                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" MaxHeight="560">
@@ -259,7 +264,7 @@
                                       Style="{StaticResource InputComboStyle}"
                                       Margin="0,0,0,12"/>
 
-                            <!-- Total -->
+                             <!-- Total -->
                             <TextBlock Text="Total ($) *" FontSize="12" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,4"/>
                             <TextBox Text="{Binding FormTotal, UpdateSourceTrigger=PropertyChanged}"
                                      Style="{StaticResource InputStyle}"
