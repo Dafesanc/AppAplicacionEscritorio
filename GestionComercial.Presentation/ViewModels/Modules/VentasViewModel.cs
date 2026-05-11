@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using GestionComercial.Application.DTOs;
@@ -14,6 +15,7 @@ public partial class VentasViewModel : ObservableObject
     private readonly IVehiculoService   _vehiculoService;
     private readonly IInventarioService _inventarioService;
     private readonly SessionService     _sessionService;
+    private readonly TicketPdfService   _ticketPdfService;
 
     // ── Lista principal ──────────────────────────────────────────────────────
     [ObservableProperty] private ObservableCollection<VentaDTO> _ventas = new();
@@ -62,13 +64,15 @@ public partial class VentasViewModel : ObservableObject
         IClienteService    clienteService,
         IVehiculoService   vehiculoService,
         IInventarioService inventarioService,
-        SessionService     sessionService)
+        SessionService     sessionService,
+        TicketPdfService   ticketPdfService)
     {
         _ventaService      = ventaService;
         _clienteService    = clienteService;
         _vehiculoService   = vehiculoService;
         _inventarioService = inventarioService;
         _sessionService    = sessionService;
+        _ticketPdfService  = ticketPdfService;
     }
 
     // ── Filtros ──────────────────────────────────────────────────────────────
@@ -140,6 +144,35 @@ public partial class VentasViewModel : ObservableObject
         }
         catch { MensajeError = "Error al completar la venta."; }
         finally { EstaCargando = false; }
+    }
+
+    // ── Descargar ticket PDF ─────────────────────────────────────────────────
+
+    [RelayCommand]
+    private void DescargarTicket(VentaDTO? venta)
+    {
+        if (venta == null) return;
+
+        if (venta.Estado != "COMPLETADA")
+        {
+            MessageBox.Show(
+                "El ticket/orden de venta solo puede generarse una vez que la venta esté COMPLETADA.",
+                "Operación no disponible",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+            return;
+        }
+
+        try
+        {
+            var ruta = _ticketPdfService.GenerarTicket(venta);
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(ruta) { UseShellExecute = true });
+            MensajeExito = $"Ticket generado: {System.IO.Path.GetFileName(ruta)}";
+        }
+        catch (Exception ex)
+        {
+            MensajeError = $"Error al generar el ticket: {ex.Message}";
+        }
     }
 
     // ── Nueva venta ──────────────────────────────────────────────────────────

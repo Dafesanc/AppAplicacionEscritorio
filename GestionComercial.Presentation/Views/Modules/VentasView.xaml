@@ -120,7 +120,7 @@
                         <DataGridTextColumn Header="Total"     Binding="{Binding TotalVenta, StringFormat=\${0:N2}}"            Width="110"/>
                         <DataGridTextColumn Header="Doc."      Binding="{Binding TipoDocumento}"                                Width="80"/>
                         <DataGridTextColumn Header="Estado"    Binding="{Binding Estado}"                                      Width="100"/>
-                        <DataGridTemplateColumn Header="Acciones" Width="175">
+                        <DataGridTemplateColumn Header="Acciones" Width="215">
                              <DataGridTemplateColumn.CellStyle>
                                 <Style TargetType="DataGridCell">
                                     <Setter Property="Padding" Value="4,2"/>
@@ -145,11 +145,57 @@
                             </DataGridTemplateColumn.CellStyle>
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Button Content="Completar" Height="28" Width="100" Margin="4,2"
-                                            Style="{StaticResource SecondaryButtonStyle}" FontSize="11"
-                                            Command="{Binding DataContext.CompletarVentaCommand,
-                                                      RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                            CommandParameter="{Binding}"/>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button Content="Completar" Height="28" Width="100" Margin="4,2"
+                                                Style="{StaticResource SecondaryButtonStyle}" FontSize="11"
+                                                Command="{Binding DataContext.CompletarVentaCommand,
+                                                          RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                CommandParameter="{Binding}"/>
+                                        <!-- Botón descargar ticket PDF -->
+                                        <Button Height="28" Width="34" Margin="2,2"
+                                                ToolTip="Descargar Ticket / Nota de Venta"
+                                                Background="White" BorderBrush="#D1D5DB" BorderThickness="1"
+                                                Cursor="Hand"
+                                                Command="{Binding DataContext.DescargarTicketCommand,
+                                                          RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                CommandParameter="{Binding}">
+                                            <Button.Style>
+                                                <Style TargetType="Button">
+                                                    <Setter Property="Background" Value="White"/>
+                                                    <Setter Property="BorderBrush" Value="#D1D5DB"/>
+                                                    <Setter Property="BorderThickness" Value="1"/>
+                                                    <Setter Property="Cursor" Value="Hand"/>
+                                                    <Setter Property="Template">
+                                                        <Setter.Value>
+                                                            <ControlTemplate TargetType="Button">
+                                                                <Border Background="{TemplateBinding Background}"
+                                                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                                                        CornerRadius="6">
+                                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                </Border>
+                                                                <ControlTemplate.Triggers>
+                                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                                        <Setter Property="Background" Value="#EFF6FF"/>
+                                                                        <Setter Property="BorderBrush" Value="#93C5FD"/>
+                                                                    </Trigger>
+                                                                    <Trigger Property="IsPressed" Value="True">
+                                                                        <Setter Property="Background" Value="#DBEAFE"/>
+                                                                    </Trigger>
+                                                                </ControlTemplate.Triggers>
+                                                            </ControlTemplate>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                </Style>
+                                            </Button.Style>
+                                            <!-- Icono descarga: flecha abajo + bandeja -->
+                                            <Path Data="M6,0 L6,8 M2,5 L6,9 L10,5 M0,11 L12,11"
+                                                  Stroke="#374151" StrokeThickness="1.8"
+                                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                                                  StrokeLineJoin="Round"
+                                                  Stretch="Uniform" Width="13" Height="12"/>
+                                        </Button>
+                                    </StackPanel>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
