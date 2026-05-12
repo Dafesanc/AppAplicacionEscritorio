@@ -145,6 +145,21 @@ public partial class ShellViewModel : ObservableObject
         SolicitudCerrarSesion?.Invoke();
     }
 
+    public void NavegateToModule(string module)
+    {
+        switch (module.ToLowerInvariant())
+        {
+            case "dashboard":  IrDashboard();  break;
+            case "ventas":     IrVentas();     break;
+            case "clientes":   IrClientes();   break;
+            case "inventario": IrInventario(); break;
+            case "pesajes":    IrPesajes();    break;
+            case "facturas":   IrFacturas();   break;
+            case "usuarios":   IrUsuarios();   break;
+            case "vehiculos":  IrVehiculos();  break;
+        }
+    }
+
     private void LimpiarSeleccion()
     {
         DashboardSeleccionado = false;

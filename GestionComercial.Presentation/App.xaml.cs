@@ -35,6 +35,7 @@ public partial class App : System.Windows.Application
                 // Sesión global del usuario autenticado
                 services.AddSingleton<SessionService>();
                 services.AddSingleton<TicketPdfService>();
+                services.AddTransient<ChatBotViewModel>();
 
                 // ViewModels
                 services.AddTransient<LoginViewModel>();

@@ -78,6 +78,22 @@ public interface IVehiculoService
 }
 
 /// <summary>
+/// Interfaz para el asistente virtual (Claude AI)
+/// </summary>
+public interface IChatbotService
+{
+    Task<ChatbotResponseDTO> ProcessAsync(string userMessage);
+}
+
+/// <summary>
+/// Interfaz para el servicio de envío de correos de soporte
+/// </summary>
+public interface ISupportEmailService
+{
+    Task<bool> EnviarReporteAsync(string mensaje, string usuarioNombre, string usuarioRol, string moduloActivo);
+}
+
+/// <summary>
 /// Interfaz para el servicio de Factura
 /// </summary>
 public interface IFacturaService

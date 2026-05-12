@@ -229,6 +229,16 @@ public class CrearProductoDTO
 }
 
 /// <summary>
+/// DTO para respuesta del Asistente Virtual (Claude)
+/// </summary>
+public class ChatbotResponseDTO
+{
+    public string Intent  { get; init; } = "UNKNOWN";
+    public string? Module { get; init; }
+    public string Message { get; init; } = string.Empty;
+}
+
+/// <summary>
 /// DTO para Factura
 /// </summary>
 public class FacturaDTO

@@ -4,6 +4,7 @@ using GestionComercial.Application.Interfaces;
 using GestionComercial.Application.Services;
 using GestionComercial.Infrastructure.Persistence;
 using GestionComercial.Infrastructure.Persistence.Repositories;
+using GestionComercial.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -113,6 +114,10 @@ public static class DependencyInjection
 
         services
             .AddScoped<IVehiculoService, VehiculoService>();
+
+        // Chatbot (multi-proveedor: gemini / groq / ollama) y soporte por email
+        services.AddScoped<IChatbotService, AIChatbotService>();
+        services.AddScoped<ISupportEmailService, SupportEmailService>();
 
         return services;
     }
