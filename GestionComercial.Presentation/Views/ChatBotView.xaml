@@ -242,7 +242,7 @@
                         <Border.Effect>
                             <DropShadowEffect BlurRadius="14" ShadowDepth="3" Color="#1E3A5F" Opacity="0.40"/>
                         </Border.Effect>
-                        <TextBlock Text="💬" FontSize="22"
+                        <TextBlock Text="🤖" FontSize="22" Foreground="White"
                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                     <ControlTemplate.Triggers>

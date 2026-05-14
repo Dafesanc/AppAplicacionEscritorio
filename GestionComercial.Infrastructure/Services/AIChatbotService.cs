@@ -8,9 +8,9 @@ namespace GestionComercial.Infrastructure.Services;
 
 /// <summary>
 /// Servicio de IA multi-proveedor. Configura "Provider" en appsettings.json:
-/// "gemini" → Google Gemini Flash (free tier: 1500 req/día)
-/// "groq"   → Groq + Llama (free tier: 14400 req/día)
-/// "ollama" → Ollama local (gratuito, sin límites, requiere instalación local)
+///   "gemini" → Google Gemini Flash  (free tier: 1 500 req/día)
+///   "groq"   → Groq + Llama         (free tier: 14 400 req/día)
+///   "ollama" → Ollama local          (gratuito, sin límites)
 /// </summary>
 public class AIChatbotService : IChatbotService
 {
@@ -30,94 +30,152 @@ public class AIChatbotService : IChatbotService
         {"intent":"<INTENT>","module":"<MODULE_O_NULL>","message":"<mensaje_amable>"}
 
         Valores de intent:
-        - NAVIGATE: el usuario quiere ir a una sección del sistema
-        - USER_DATA: el usuario quiere ver su perfil o datos de sesión
-        - SUPPORT: tiene un problema, error o duda técnica
-        - GREETING: saludo o conversación general
-        - UNKNOWN: intención no identificada
+        - NAVIGATE  : el usuario quiere ir a una sección del sistema
+        - USER_DATA : el usuario quiere ver su perfil o datos de sesión
+        - SUPPORT   : tiene un problema, error o duda técnica
+        - GREETING  : saludo o conversación general
+        - UNKNOWN   : intención no identificada
 
-        Módulos válidos para "module" (solo si intent=NAVIGATE, caso contrario null):
+        Módulos válidos para "module" (solo si intent=NAVIGATE, en otro caso null):
         dashboard, ventas, clientes, inventario, pesajes, facturas, usuarios, vehiculos
 
-        El campo "message" debe ser una respuesta corta y amable en español (máx. 80 palabras).
-        Responde solo el JSON, sin texto adicional.
+        Ejemplos de mapeo:
+        "quiero ver ventas"          → {"intent":"NAVIGATE","module":"ventas","message":"Te llevo a Ventas."}
+        "mostrar inventario"         → {"intent":"NAVIGATE","module":"inventario","message":"Abriendo Inventario."}
+        "ir a clientes"              → {"intent":"NAVIGATE","module":"clientes","message":"Yendo a Clientes."}
+        "ver mis productos"          → {"intent":"NAVIGATE","module":"inventario","message":"Los productos están en Inventario."}
+        "mis datos"                  → {"intent":"USER_DATA","module":null,"message":"Aquí está tu perfil."}
+        "tengo un error"             → {"intent":"SUPPORT","module":null,"message":"Cuéntame el problema."}
+        "hola"                       → {"intent":"GREETING","module":null,"message":"¡Hola! ¿En qué te ayudo?"}
+
+        El campo "message" debe ser una respuesta corta y amable en español (máx. 60 palabras).
+        Responde SOLO el JSON, sin texto adicional.
         """;
 
     public AIChatbotService(IConfiguration config)
     {
-        _provider  = config["Chatbot:Provider"]   ?? "gemini";
-        _apiKey    = config["Chatbot:ApiKey"]      ?? string.Empty;
-        _model     = config["Chatbot:Model"]       ?? DefaultModel(_provider);
-        _ollamaUrl = config["Chatbot:OllamaUrl"]  ?? "http://localhost:11434";
+        _provider  = (config["Chatbot:Provider"]  ?? "gemini").ToLowerInvariant();
+        _apiKey    =  config["Chatbot:ApiKey"]     ?? string.Empty;
+        _model     =  config["Chatbot:Model"]      ?? DefaultModel(_provider);
+        _ollamaUrl =  config["Chatbot:OllamaUrl"]  ?? "http://localhost:11434";
     }
+
+    // ── Punto de entrada ─────────────────────────────────────────────────────
 
     public async Task<ChatbotResponseDTO> ProcessAsync(string userMessage)
     {
         try
         {
-            var rawText = _provider.ToLowerInvariant() switch
+            return _provider switch
             {
                 "gemini" => await CallGeminiAsync(userMessage),
                 "groq"   => await CallGroqAsync(userMessage),
                 "ollama" => await CallOllamaAsync(userMessage),
-                _        => null
+                _        => Error($"Proveedor '{_provider}' no reconocido. Usa: gemini, groq u ollama.")
             };
-
-            if (rawText == null)
-                return Fallback($"Proveedor '{_provider}' no reconocido. Usa: gemini, groq u ollama.");
-
-            var result = JsonSerializer.Deserialize<ChatbotResponseDTO>(rawText,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-            return result ?? Fallback();
         }
-        catch (HttpRequestException)
+        catch (TaskCanceledException)
         {
-            return Fallback("No pude conectarme al asistente. Verifica tu conexión y API Key.");
+            return Error("Tiempo de espera agotado (30 s). Verifica tu conexión a internet.");
         }
-        catch
+        catch (HttpRequestException ex)
         {
-            return Fallback();
+            return Error($"Sin conexión a internet: {Trim(ex.Message, 80)}");
+        }
+        catch (Exception ex)
+        {
+            return Error($"Error {ex.GetType().Name}: {Trim(ex.Message, 100)}");
         }
     }
 
-    // ── Google Gemini ────────────────────────────────────────────────────────
+    // ── Google Gemini ─────────────────────────────────────────────────────────
 
-    private async Task<string?> CallGeminiAsync(string userMessage)
+    private async Task<ChatbotResponseDTO> CallGeminiAsync(string userMessage)
     {
         if (string.IsNullOrWhiteSpace(_apiKey))
-            return /*lang=json*/"""{"intent":"UNKNOWN","module":null,"message":"Configura tu API Key de Gemini en appsettings.json (Chatbot:ApiKey)."}""";
+            return Error("Configura tu API Key de Gemini en appsettings.json → Chatbot:ApiKey.");
 
-        var url  = $"https://generativelanguage.googleapis.com/v1beta/models/{_model}:generateContent?key={_apiKey}";
-        var body = new
-        {
-            system_instruction = new { parts = new[] { new { text = SystemPrompt } } },
-            contents           = new[] { new { role = "user", parts = new[] { new { text = userMessage } } } },
-            generationConfig   = new { maxOutputTokens = 300, temperature = 0.1 }
-        };
-
+        var url = $"https://generativelanguage.googleapis.com/v1beta/models/{_model}:generateContent?key={_apiKey}";
         using var request = new HttpRequestMessage(HttpMethod.Post, url)
         {
-            Content = JsonContent.Create(body)
+            Content = JsonContent.Create(new
+            {
+                system_instruction = new { parts = new[] { new { text = SystemPrompt } } },
+                contents           = new[] { new { role = "user", parts = new[] { new { text = userMessage } } } },
+                generationConfig   = new { maxOutputTokens = 300, temperature = 0.1 }
+            })
         };
-        using var response = await _http.SendAsync(request);
-        response.EnsureSuccessStatusCode();
 
-        using var doc = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
-        return doc.RootElement
-            .GetProperty("candidates")[0]
+        using var response = await _http.SendAsync(request);
+        var body = await response.Content.ReadAsStringAsync();
+
+        if (!response.IsSuccessStatusCode)
+            return Error(GeminiHttpError((int)response.StatusCode, body));
+
+        return ParseGeminiResponse(body);
+    }
+
+    private static ChatbotResponseDTO ParseGeminiResponse(string body)
+    {
+        using var doc = JsonDocument.Parse(body);
+        var root = doc.RootElement;
+
+        // Verificar si la respuesta fue bloqueada por filtros de seguridad
+        if (root.TryGetProperty("promptFeedback", out var feedback) &&
+            feedback.TryGetProperty("blockReason", out var reason))
+            return Error($"Respuesta bloqueada por filtro de seguridad: {reason.GetString()}");
+
+        if (!root.TryGetProperty("candidates", out var candidates) || candidates.GetArrayLength() == 0)
+            return Error("Gemini no devolvió candidatos. Intenta reformular tu mensaje.");
+
+        var textRaw = candidates[0]
             .GetProperty("content")
             .GetProperty("parts")[0]
             .GetProperty("text")
-            .GetString();
+            .GetString() ?? "{}";
+
+        // Limpiar posibles bloques de código markdown ```json ... ```
+        var json = textRaw.Trim();
+        if (json.StartsWith("```")) json = json.Split('\n', 3).Length > 1
+            ? string.Join("\n", json.Split('\n').Skip(1).TakeWhile(l => !l.StartsWith("```")))
+            : json;
+
+        var result = JsonSerializer.Deserialize<ChatbotResponseDTO>(json.Trim(),
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+        return result ?? Error("El asistente no devolvió una respuesta válida.");
     }
 
-    // ── Groq (compatible con OpenAI) ─────────────────────────────────────────
+    private static string GeminiHttpError(int status, string body)
+    {
+        var hint = status switch
+        {
+            400 => "solicitud inválida (revisa el nombre del modelo en appsettings).",
+            401 or 403 => "API Key sin permiso — actívala en aistudio.google.com.",
+            404 => "modelo no encontrado — asegúrate de usar 'gemini-2.0-flash'.",
+            429 => "límite de solicitudes alcanzado (free tier). Espera un momento.",
+            500 or 503 => "error temporal del servidor de Google. Intenta de nuevo.",
+            _ => $"error HTTP {status}."
+        };
 
-    private async Task<string?> CallGroqAsync(string userMessage)
+        try
+        {
+            using var doc = JsonDocument.Parse(body);
+            var msg = doc.RootElement.GetProperty("error").GetProperty("message").GetString();
+            return $"Gemini {status}: {msg}";
+        }
+        catch
+        {
+            return $"Gemini {status} — {hint}";
+        }
+    }
+
+    // ── Groq (OpenAI-compatible) ──────────────────────────────────────────────
+
+    private async Task<ChatbotResponseDTO> CallGroqAsync(string userMessage)
     {
         if (string.IsNullOrWhiteSpace(_apiKey))
-            return /*lang=json*/"""{"intent":"UNKNOWN","module":null,"message":"Configura tu API Key de Groq en appsettings.json (Chatbot:ApiKey)."}""";
+            return Error("Configura tu API Key de Groq en appsettings.json → Chatbot:ApiKey.");
 
         using var request = new HttpRequestMessage(HttpMethod.Post, "https://api.groq.com/openai/v1/chat/completions");
         request.Headers.Add("Authorization", $"Bearer {_apiKey}");
@@ -134,19 +192,27 @@ public class AIChatbotService : IChatbotService
         });
 
         using var response = await _http.SendAsync(request);
-        response.EnsureSuccessStatusCode();
+        var body = await response.Content.ReadAsStringAsync();
 
-        using var doc = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
-        return doc.RootElement
+        if (!response.IsSuccessStatusCode)
+            return Error($"Groq {(int)response.StatusCode}: verifica tu API Key.");
+
+        using var doc = JsonDocument.Parse(body);
+        var text = doc.RootElement
             .GetProperty("choices")[0]
             .GetProperty("message")
             .GetProperty("content")
-            .GetString();
+            .GetString() ?? "{}";
+
+        var result = JsonSerializer.Deserialize<ChatbotResponseDTO>(text.Trim(),
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+        return result ?? Error("Groq no devolvió una respuesta válida.");
     }
 
-    // ── Ollama (local) ───────────────────────────────────────────────────────
+    // ── Ollama (local) ────────────────────────────────────────────────────────
 
-    private async Task<string?> CallOllamaAsync(string userMessage)
+    private async Task<ChatbotResponseDTO> CallOllamaAsync(string userMessage)
     {
         using var request = new HttpRequestMessage(HttpMethod.Post, $"{_ollamaUrl}/api/chat");
         request.Content = JsonContent.Create(new
@@ -161,18 +227,26 @@ public class AIChatbotService : IChatbotService
         });
 
         using var response = await _http.SendAsync(request);
-        response.EnsureSuccessStatusCode();
+        var body = await response.Content.ReadAsStringAsync();
 
-        using var doc = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
-        return doc.RootElement
+        if (!response.IsSuccessStatusCode)
+            return Error($"Ollama {(int)response.StatusCode}: ¿está corriendo el servidor local?");
+
+        using var doc = JsonDocument.Parse(body);
+        var text = doc.RootElement
             .GetProperty("message")
             .GetProperty("content")
-            .GetString();
+            .GetString() ?? "{}";
+
+        var result = JsonSerializer.Deserialize<ChatbotResponseDTO>(text.Trim(),
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+        return result ?? Error("Ollama no devolvió una respuesta válida.");
     }
 
-    // ── Utilidades ───────────────────────────────────────────────────────────
+    // ── Utilidades ────────────────────────────────────────────────────────────
 
-    private static string DefaultModel(string provider) => provider.ToLowerInvariant() switch
+    private static string DefaultModel(string provider) => provider switch
     {
         "gemini" => "gemini-2.0-flash",
         "groq"   => "llama-3.1-8b-instant",
@@ -180,9 +254,12 @@ public class AIChatbotService : IChatbotService
         _        => string.Empty
     };
 
-    private static ChatbotResponseDTO Fallback(string? msg = null) => new()
+    private static ChatbotResponseDTO Error(string mensaje) => new()
     {
         Intent  = "UNKNOWN",
-        Message = msg ?? "No pude procesar tu consulta. Intenta de nuevo."
+        Message = mensaje
     };
+
+    private static string Trim(string s, int max) =>
+        s.Length <= max ? s : s[..max] + "…";
 }
