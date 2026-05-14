@@ -4,6 +4,7 @@
         xmlns:sys="clr-namespace:System;assembly=System.Runtime"
         xmlns:views="clr-namespace:GestionComercial.Presentation.Views"
         Title="Sistema de Gestión Comercial"
+        Icon="/Assets/app.ico"
         Height="780" Width="1280"
         MinHeight="640" MinWidth="1024"
         WindowStartupLocation="CenterScreen">
