@@ -147,7 +147,8 @@ public partial class ChatBotViewModel : ObservableObject
                 mensaje,
                 usuario?.NombreCompleto ?? "Desconocido",
                 usuario?.RolNombre     ?? "Sin rol",
-                ModuloActivo);
+                ModuloActivo,
+                usuario?.Email         ?? "");
 
             Messages.RemoveAt(Messages.Count - 1);
             AddBotMessage(ok

@@ -3,6 +3,8 @@ using System.Text.Json;
 using GestionComercial.Application.DTOs;
 using GestionComercial.Application.Services;
 using Microsoft.Extensions.Configuration;
+using OpenAI;
+using OpenAI.Chat;
 
 namespace GestionComercial.Infrastructure.Services;
 
@@ -11,6 +13,7 @@ namespace GestionComercial.Infrastructure.Services;
 ///   "gemini" → Google Gemini Flash  (free tier: 1 500 req/día)
 ///   "groq"   → Groq + Llama         (free tier: 14 400 req/día)
 ///   "ollama" → Ollama local          (gratuito, sin límites)
+///   "openai" → OpenAI GPT            (de pago, SDK oficial)
 /// </summary>
 public class AIChatbotService : IChatbotService
 {
@@ -71,7 +74,8 @@ public class AIChatbotService : IChatbotService
                 "gemini" => await CallGeminiAsync(userMessage),
                 "groq"   => await CallGroqAsync(userMessage),
                 "ollama" => await CallOllamaAsync(userMessage),
-                _        => Error($"Proveedor '{_provider}' no reconocido. Usa: gemini, groq u ollama.")
+                "openai" => await CallOpenAIAsync(userMessage),
+                _        => Error($"Proveedor '{_provider}' no reconocido. Usa: gemini, groq, ollama u openai.")
             };
         }
         catch (TaskCanceledException)
@@ -244,6 +248,28 @@ public class AIChatbotService : IChatbotService
         return result ?? Error("Ollama no devolvió una respuesta válida.");
     }
 
+    // ── OpenAI (SDK oficial) ──────────────────────────────────────────────────
+
+    private async Task<ChatbotResponseDTO> CallOpenAIAsync(string userMessage)
+    {
+        if (string.IsNullOrWhiteSpace(_apiKey))
+            return Error("Configura tu API Key de OpenAI en appsettings.json → Chatbot:ApiKey.");
+
+        var client = new OpenAIClient(_apiKey);
+        var chat   = client.GetChatClient(_model);
+
+        var completion = await chat.CompleteChatAsync(
+            new SystemChatMessage(SystemPrompt),
+            new UserChatMessage(userMessage));
+
+        var text = completion.Value.Content[0].Text?.Trim() ?? "{}";
+
+        var result = JsonSerializer.Deserialize<ChatbotResponseDTO>(text,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+        return result ?? Error("OpenAI no devolvió una respuesta válida.");
+    }
+
     // ── Utilidades ────────────────────────────────────────────────────────────
 
     private static string DefaultModel(string provider) => provider switch
@@ -251,6 +277,7 @@ public class AIChatbotService : IChatbotService
         "gemini" => "gemini-2.0-flash",
         "groq"   => "llama-3.1-8b-instant",
         "ollama" => "llama3.2:3b",
+        "openai" => "gpt-4o-mini",
         _        => string.Empty
     };
 

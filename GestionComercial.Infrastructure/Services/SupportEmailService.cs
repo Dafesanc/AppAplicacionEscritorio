@@ -26,7 +26,7 @@ public class SupportEmailService : ISupportEmailService
     }
 
     public async Task<bool> EnviarReporteAsync(
-        string mensaje, string usuarioNombre, string usuarioRol, string moduloActivo)
+        string mensaje, string usuarioNombre, string usuarioRol, string moduloActivo, string usuarioEmail = "")
     {
         if (string.IsNullOrWhiteSpace(_smtpUser) || string.IsNullOrWhiteSpace(_smtpPassword))
             return false;
@@ -36,6 +36,8 @@ public class SupportEmailService : ISupportEmailService
             var email = new MimeMessage();
             email.From.Add(new MailboxAddress(_senderName, _smtpUser));
             email.To.Add(new MailboxAddress("Soporte Técnico", _supportEmail));
+            if (!string.IsNullOrWhiteSpace(usuarioEmail))
+                email.Cc.Add(new MailboxAddress(usuarioNombre, usuarioEmail));
             email.Subject = $"[Soporte] {usuarioNombre} — {DateTime.Now:dd/MM/yyyy HH:mm}";
             email.Body = new TextPart("plain")
             {

@@ -47,6 +47,7 @@ public class LoginResponseDTO
     public int ID_Usuario { get; set; }
     public string NombreUsuario { get; set; } = null!;
     public string NombreCompleto { get; set; } = null!;
+    public string Email { get; set; } = string.Empty;
     public int ID_Rol { get; set; }
     public string RolNombre { get; set; } = null!;
     public string Token { get; set; } = null!; // JWT (futuro)

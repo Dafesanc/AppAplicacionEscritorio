@@ -25,7 +25,7 @@ public partial class App : System.Windows.Application
         _host = Host.CreateDefaultBuilder()
             .ConfigureAppConfiguration(config =>
             {
-                config.SetBasePath(System.IO.Directory.GetCurrentDirectory())
+                config.SetBasePath(AppContext.BaseDirectory)
                       .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
             })
             .ConfigureServices((context, services) =>

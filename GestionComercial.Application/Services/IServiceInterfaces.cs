@@ -90,7 +90,7 @@ public interface IChatbotService
 /// </summary>
 public interface ISupportEmailService
 {
-    Task<bool> EnviarReporteAsync(string mensaje, string usuarioNombre, string usuarioRol, string moduloActivo);
+    Task<bool> EnviarReporteAsync(string mensaje, string usuarioNombre, string usuarioRol, string moduloActivo, string usuarioEmail = "");
 }
 
 /// <summary>

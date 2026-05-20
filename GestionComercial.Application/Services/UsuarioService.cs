@@ -95,6 +95,7 @@ public class UsuarioService : IUsuarioService
                 ID_Usuario = usuario.ID_Usuario,
                 NombreUsuario = usuario.NombreUsuario,
                 NombreCompleto = usuario.NombreCompleto,
+                Email = usuario.Email ?? string.Empty,
                 ID_Rol = usuario.ID_Rol,
                 RolNombre = usuario.Rol?.Nombre ?? "Sin rol",
                 Token = string.Empty
